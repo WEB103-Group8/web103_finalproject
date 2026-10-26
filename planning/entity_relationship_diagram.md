@@ -4,12 +4,17 @@ Reference the Creating an Entity Relationship Diagram final project guide in the
 
 ## Create the List of Tables
 
-USERS
-GROUPS
-MEMBERS
-RSPVS
-EVENTS
-VENUES
+1. USERS
+
+2. GROUPS
+
+3. MEMBERS
+
+4. RSVPS
+
+5. EVENTS
+
+6. VENUES
 
 ## Add the Entity Relationship Diagram
 
