@@ -1,4 +1,4 @@
-# [ORBIT]
+# ORBIT
 
 CodePath WEB103 Final Project
 
@@ -30,33 +30,26 @@ Backend: Render PostgreSQL database, Express
 
 User are able to upload new events to the platform to share with others and to find interested attendees. This includes the ability to create, edit, view, and delete their own posts. The information they are able to upload includes a title, an address, and image, and a description of the event.
 
-[gif goes here]
 
 ### Event Gallery
 
 Users are able to see a list of all local events by city, category or possibly time (such as day or week) in a grid format.
 
-[gif goes here]
 
 ### Search and Filter Function
 
 Users are able to look for events based on title, city, and category of events.
 
-[gif goes here]
-
-### [ADDITIONAL FEATURES GO HERE - ADD ALL FEATURES HERE IN THE FORMAT ABOVE; you will check these off and add gifs as you complete them]
 
 ### Collections and Saved Events
 
 Users are able to save events they are interested in into collections or on their own profile.
 
-[gif goes here]
 
 ### RSVP Events
 
 Users are able to indicate if they are attending an event on the event post.
 
-[gif goes here]
 
 ### Comments and Likes
 
