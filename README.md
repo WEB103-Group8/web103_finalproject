@@ -2,7 +2,7 @@
 
 CodePath WEB103 Final Project
 
-Designed and developed by: Annie Gomez, Inzwi Zunga, Yu-Wei Tseng, My Pham, Manav Kothari
+Designed and developed by: Annie Gomez, My Pham, Manav Kothari
 
 🔗 Link to deployed app:
 
