@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Founder's Guide logo">
+  <circle cx="32" cy="32" r="30" fill="#1b2a4a" stroke="#c8a951" stroke-width="2"/>
+  <polyline points="16,40 26,28 34,36 48,18" fill="none" stroke="#c8a951" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <polyline points="38,18 48,18 48,28" fill="none" stroke="#c8a951" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

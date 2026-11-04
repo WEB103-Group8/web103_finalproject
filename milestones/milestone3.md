@@ -20,9 +20,11 @@ You will need to reference the GitHub Project Management guide in the course por
 - [X] In your repo, update the status of issues in your project board.
 - [X] In your repo, create a GitHub Milestone for each final project unit, corresponding to each of the 5 milestones in your `milestones/` directory.
   - List the name of each milestone you created:
-    1. Milestone 3 - Unit 7
-    2. Milestone 4 - Unit 8
-    3. Final Milestone - Unit 9
+    1. Milestone 1 - Unit 5
+    2. Milestone 2 - Unit 6
+    3. Milestone 3 - Unit 7
+    4. Milestone 4 - Unit 8
+    5. Final Milestone - Unit 9
   - [X] Set the completion percentage of each milestone. The GitHub Milestone for this unit (Milestone 3 - Unit 7) should be 100% completed when you submit for full points.
 - [X] In `readme.md`, check off the features you have completed in this unit by adding a ✅ emoji in front of the feature's name.
   - [X] Under each feature you have completed, include a GIF showing feature functionality.
@@ -40,7 +42,7 @@ Losing a member and having to take over a lot more responsibilities.
 
 ### Did you finish all of your tasks in your sprint plan for this week? If you did not finish all of the planned tasks, how would you prioritize the remaining tasks on your list?
 
-We got everything initially set up, and are working towards actually starting the rest.
+We got everything initially set up, and are working towards actually starting the rest. Since then, we created and seeded the users, events, and RSVP tables, moved the database setup into the server config and data folders, and added API routes to read the data.
 
 ### Which features and user stories would you consider “at risk”? How will you change your plan if those items remain “at risk”?
 

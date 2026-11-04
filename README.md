@@ -10,13 +10,13 @@ Designed and developed by: Annie Gomez, My Pham, Manav Kothari
 
 ### Description and Purpose
 
-Our application, Orbit, is intended to provide the DFW Metroplex a platform where users can share information and details about in-person and online events happening in the area. 
+Our application, Orbit, is intended to provide a platform where users can share information and details about in-person and online events in their area.
 
-Orbit intends to provide a localized platform where residents of the DFW metroplex and surrounding areas can easily find local events and gatherings, without needing to ask or know anyone in advance.
+Orbit intends to provide a localized platform where residents can easily find nearby events and gatherings, without needing to ask or know anyone in advance.
 
 ### Inspiration
 
-We were inspired by the Meetup application, since we enjoyed the diversity in events and usability it brings to users. We specifically focused on the DFW metroplex because all of our group members are based there.
+We were inspired by the Meetup application, since we enjoyed the diversity in events and usability it brings to users.
 
 ## Tech Stack
 
@@ -25,6 +25,20 @@ Frontend: React
 Backend: Render PostgreSQL database, Express
 
 ## Features
+
+### ✅ Database and API
+
+The PostgreSQL database is configured through the server and contains the `users`, `events`, and `rsvp` tables. It is seeded with 25 users, 50 events, and 150 RSVPs. The Express API provides a root status response, a database health check, and endpoints for users, events, and RSVPs.
+
+The following `psql` screenshots show the tables and sample data:
+
+![PostgreSQL tables](server/tables.JPG)
+
+![Sample users](server/users.JPG)
+
+![Sample events](server/events.JPG)
+
+![Sample RSVPs](server/rsvps.JPG)
 
 ### Creating and Hosting
 
