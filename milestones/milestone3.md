@@ -17,6 +17,9 @@ You will need to reference the GitHub Project Management guide in the course por
     3. User Profile Page
     4. Add an Event
     5. Landing Page
+    6. Database and Render Setup
+    7. Create and Seed Data for Tables
+    8. Add API Routes
 - [X] In your repo, update the status of issues in your project board.
 - [X] In your repo, create a GitHub Milestone for each final project unit, corresponding to each of the 5 milestones in your `milestones/` directory.
   - List the name of each milestone you created:

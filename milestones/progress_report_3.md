@@ -25,7 +25,7 @@ List the name of each GitHub Milestone you created, one per line:
 Replace the blank before the percent sign with a number from 0 to 100.
 Completion percentage for Milestone 3 - Unit 7: 100%
 List each issue you completed this unit and the main file or folder where that work lives, one per line:
-- database set up - in our Render profile as well as our .env file, which is located in server/.env (not pushed in repo as it contains sensitive information)
+- Database and Render set up - in our Render profile as well as our .env file, which is located in server/.env (not pushed in repo as it contains sensitive information)
 - Created and seeded the `users`, `events`, and `rsvp` PostgreSQL tables - `server/config/reset.js` and `server/data/`
 - Added API routes for users, events, and RSVPs - `server/controllers/`, `server/routes/`, and `server/server.js`
 
