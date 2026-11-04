@@ -18,4 +18,4 @@ Reference the Creating an Entity Relationship Diagram final project guide in the
 
 ## Add the Entity Relationship Diagram
 
-<img width="1440" height="2600" alt="IMG_6864" src="https://github.com/user-attachments/assets/58122744-e0a4-41ef-9006-568bfa269085" />
+![Entity Relationship Diagram](./ERD.png)
