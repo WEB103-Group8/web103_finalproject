@@ -1,8 +1,8 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import OrbitRoutes from './OrbitRoutes'
 import Login from './pages/Login'
 import Onboarding from './pages/Onboarding'
-import OrbitRoutes from './OrbitRoutes'
 
 function OnboardingRoute({ children }) {
   const { user, loading } = useAuth()
