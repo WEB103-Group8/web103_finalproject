@@ -1,9 +1,13 @@
-import express from "express";
-import UsersController from "../controllers/users.js";
+import express from 'express'
+import UsersController from '../controllers/users.js'
 
-const router = express.Router();
+// Create a new router instance
+const router = express.Router()
 
-router.get("/", UsersController.list);
-router.get("/:userId", UsersController.getById);
+// Define a route to get all users
+router.get('/', UsersController.getUsers)
 
-export default router;
+// Define a route to get a specific user by their ID
+router.get('/:userId', UsersController.getUserById)
+
+export default router

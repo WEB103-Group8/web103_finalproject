@@ -1,40 +1,54 @@
-import { pool } from "../config/database.js";
+import { pool } from '../config/database.js'
 
-const list = async (req, res) => {
-  try {
-    const userId = req.query.user_id;
-    const eventId = req.query.event_id;
-    if (!userId && !eventId) {
-      return res
-        .status(400)
-        .json({ error: "Provide user_id or event_id to query RSVPs." });
-    }
+// the query-string filters people can use, and the column each one checks
+const FILTER_COLUMNS = {
+    user_id: 'rsvps.user_id',
+    event_id: 'rsvps.event_id'
+}
 
-    const values = [];
-    const filters = [];
-    if (userId) {
-      values.push(userId);
-      filters.push(`r.user_id = $${values.length}`);
-    }
-    if (eventId) {
-      values.push(eventId);
-      filters.push(`r.event_id = $${values.length}`);
-    }
-    const result = await pool.query(
-      `SELECT r.rsvp_id, r.user_id, r.event_id, r.rsvp_status,
-              u.full_name, e.event_title, e.event_date, e.event_start_time
-       FROM rsvp r
-       JOIN users u ON u.user_id = r.user_id
-       JOIN events e ON e.event_id = r.event_id
-       WHERE ${filters.join(" AND ")}
-       ORDER BY e.event_date, e.event_start_time`,
-      values,
-    );
-    return res.status(200).json(result.rows);
-  } catch (error) {
-    console.error("Failed to fetch RSVPs:", error.code || error.message);
-    return res.status(500).json({ error: "Unable to fetch RSVPs." });
-  }
-};
+// RSVPs joined with the person, the event, the event's group and the event's venue
+const RSVPS_WITH_DETAILS = `
+    SELECT rsvps.*,
+           users.full_name,
+           events.event_title,
+           events.start_time,
+           events.end_time,
+           groups.group_name,
+           venues.venue_name,
+           venues.city,
+           venues.state
+    FROM rsvps
+    JOIN users ON users.user_id = rsvps.user_id
+    JOIN events ON events.event_id = rsvps.event_id
+    JOIN groups ON groups.group_id = events.group_id
+    JOIN venues ON venues.venue_id = events.venue_id`
 
-export default { list };
+const getRsvps = async (req, res) => {
+    try {
+        const values = []
+        const conditions = []
+
+        // add a condition for every filter that was sent in the query string
+        for (const [name, column] of Object.entries(FILTER_COLUMNS)) {
+            if (req.query[name]) {
+                values.push(req.query[name])
+                conditions.push(`${column} = $${values.length}`)
+            }
+        }
+
+        // asking for every RSVP in the app is not allowed, so at least one filter is required
+        if (conditions.length === 0) {
+            return res.status(400).json({ error: `Provide one of: ${Object.keys(FILTER_COLUMNS).join(', ')}.` })
+        }
+
+        const results = await pool.query(`${RSVPS_WITH_DETAILS} WHERE ${conditions.join(' AND ')} ORDER BY events.start_time ASC`, values)
+        res.status(200).json(results.rows)
+    } catch (error) {
+        console.error('Failed to fetch RSVPs:', error.code || error.message)
+        res.status(500).json({ error: 'Unable to fetch RSVPs.' })
+    }
+}
+
+export default {
+    getRsvps
+}

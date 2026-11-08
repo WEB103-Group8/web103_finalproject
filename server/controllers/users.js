@@ -1,55 +1,65 @@
-import { pool } from "../config/database.js";
+import { pool } from '../config/database.js'
 
-const list = async (_req, res) => {
-  try {
-    const result = await pool.query(
-      `SELECT user_id, full_name, email, city, user_image_url, user_type
-       FROM users
-       ORDER BY user_id`,
-    );
-    res.status(200).json(result.rows);
-  } catch (error) {
-    console.error("Failed to fetch users:", error.code || error.message);
-    res.status(500).json({ error: "Unable to fetch users." });
-  }
-};
+// the RSVP answer that counts as someone going to the event
+const ATTENDING = 'attending'
 
-const getById = async (req, res) => {
-  try {
-    const result = await pool.query(
-      `SELECT user_id, full_name, email, city, user_image_url, user_type
-       FROM users WHERE user_id = $1`,
-      [req.params.userId],
-    );
-    if (result.rowCount === 0) {
-      return res.status(404).json({ error: "User not found." });
+// the public details of a person (never the email, password or GitHub columns)
+const PUBLIC_USER_COLUMNS = 'users.user_id, users.full_name, users.city, users.state, users.user_image_url, users.user_type'
+
+// events joined with their group and venue
+const EVENTS_WITH_GROUP_AND_VENUE = `
+    SELECT events.*,
+           groups.group_name,
+           venues.venue_name,
+           venues.city,
+           venues.state
+    FROM events
+    JOIN groups ON groups.group_id = events.group_id
+    JOIN venues ON venues.venue_id = events.venue_id`
+
+const getUsers = async (req, res) => {
+    try {
+        const results = await pool.query(`SELECT ${PUBLIC_USER_COLUMNS} FROM users ORDER BY users.user_id ASC`)
+        res.status(200).json(results.rows)
+    } catch (error) {
+        console.error('Failed to fetch users:', error.code || error.message)
+        res.status(500).json({ error: 'Unable to fetch users.' })
     }
+}
 
-    const user = result.rows[0];
-    const [createdEvents, rsvpedEvents] = await Promise.all([
-      pool.query(
-        `SELECT * FROM events WHERE host_user_id = $1 ORDER BY event_date`,
-        [req.params.userId],
-      ),
-      pool.query(
-        `SELECT e.*, r.rsvp_status
-         FROM rsvp r
-         JOIN events e ON e.event_id = r.event_id
-         WHERE r.user_id = $1
-         ORDER BY e.event_date`,
-        [req.params.userId],
-      ),
-    ]);
+const getUserById = async (req, res) => {
+    try {
+        const userId = req.params.userId
+        const userResults = await pool.query(`SELECT ${PUBLIC_USER_COLUMNS} FROM users WHERE users.user_id = $1`, [userId])
 
-    return res.status(200).json({
-      ...user,
-      created_events: createdEvents.rows,
-      rsvped_events: rsvpedEvents.rows,
-    });
-  } catch (error) {
-    console.error("Failed to fetch user:", error.code || error.message);
-    return res.status(500).json({ error: "Unable to fetch user." });
-  }
-};
+        if (userResults.rows.length === 0) {
+            return res.status(404).json({ error: 'User not found' })
+        }
 
-export default { list, getById };
+        // the events in groups this person organizes, and the events they said they are attending
+        const [organizedEvents, attendingEvents] = await Promise.all([
+            pool.query(`${EVENTS_WITH_GROUP_AND_VENUE} WHERE groups.organizer_id = $1 ORDER BY events.start_time ASC`, [userId]),
+            pool.query(
+                `${EVENTS_WITH_GROUP_AND_VENUE}
+                 JOIN rsvps ON rsvps.event_id = events.event_id
+                 WHERE rsvps.user_id = $1 AND rsvps.rsvp_status = $2
+                 ORDER BY events.start_time ASC`,
+                [userId, ATTENDING]
+            )
+        ])
+
+        res.status(200).json({
+            ...userResults.rows[0],
+            organized_events: organizedEvents.rows,
+            attending_events: attendingEvents.rows
+        })
+    } catch (error) {
+        console.error('Failed to fetch user:', error.code || error.message)
+        res.status(500).json({ error: 'Unable to fetch user.' })
+    }
+}
+
+export default {
+    getUsers,
+    getUserById
+}

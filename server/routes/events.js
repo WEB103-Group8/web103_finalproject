@@ -1,9 +1,13 @@
-import express from "express";
-import EventsController from "../controllers/events.js";
+import express from 'express'
+import EventsController from '../controllers/events.js'
 
-const router = express.Router();
+// Create a new router instance
+const router = express.Router()
 
-router.get("/", EventsController.list);
-router.get("/:eventId", EventsController.getById);
+// Define a route to get all events
+router.get('/', EventsController.getEvents)
 
-export default router;
+// Define a route to get a specific event by its ID
+router.get('/:eventId', EventsController.getEventById)
+
+export default router

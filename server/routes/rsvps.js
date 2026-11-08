@@ -1,8 +1,10 @@
-import express from "express";
-import RsvpsController from "../controllers/rsvps.js";
+import express from 'express'
+import RsvpsController from '../controllers/rsvps.js'
 
-const router = express.Router();
+// Create a new router instance
+const router = express.Router()
 
-router.get("/", RsvpsController.list);
+// Define a route to get RSVPs for a user or an event (sent as query filters)
+router.get('/', RsvpsController.getRsvps)
 
-export default router;
+export default router
