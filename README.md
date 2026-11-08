@@ -28,17 +28,29 @@ Backend: Render PostgreSQL database, Express
 
 ### ✅ Database and API
 
-The PostgreSQL database is configured through the server and contains the `users`, `events`, and `rsvp` tables. It is seeded with 25 users, 50 events, and 150 RSVPs. The Express API provides a root status response, a database health check, and endpoints for users, events, and RSVPs.
+The PostgreSQL database is configured through the server and contains six tables: `users`, `venues`, `groups`, `members`, `events`, and `rsvps`, as shown in the [entity relationship diagram](planning/ERD.png). Users host groups, groups hold events at venues, and users join groups (`members`) and RSVP to events (`rsvps`).
+
+The database is seeded with data covering all 50 states plus Washington, DC: 749 users, 214 venues, 214 groups, 1,627 memberships, 321 events, and 1,284 RSVPs. The records live in `server/data`, one file per table. To create the tables and load the data, run `npm run db:setup` from the `server` folder.
+
+The Express API provides a root status response, a database health check, and endpoints for users, events, and RSVPs. Event, RSVP, and user queries join the tables so each response includes the related group, venue, and host details.
+
+![Entity relationship diagram](planning/ERD.png)
 
 The following `psql` screenshots show the tables and sample data:
 
-![PostgreSQL tables](server/tables.JPG)
+![PostgreSQL tables](server/assets/tables.JPG)
 
-![Sample users](server/users.JPG)
+![Sample users](server/assets/users.JPG)
 
-![Sample events](server/events.JPG)
+![Sample venues](server/assets/venues.JPG)
 
-![Sample RSVPs](server/rsvps.JPG)
+![Sample groups](server/assets/groups.JPG)
+
+![Sample members](server/assets/members.JPG)
+
+![Sample events](server/assets/events.JPG)
+
+![Sample RSVPs](server/assets/rsvps.JPG)
 
 ### Creating and Hosting
 

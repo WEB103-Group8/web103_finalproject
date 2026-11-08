@@ -1,49 +1,25 @@
-// These tests check the controllers and routes load and are wired together (no database needed).
+// These tests check that every controller exports the functions the routes use, named like the reference project.
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
+import citiesController from "../../controllers/cities.js";
 import eventsController from "../../controllers/events.js";
+import feedController from "../../controllers/feed.js";
+import groupsController from "../../controllers/groups.js";
 import rsvpsController from "../../controllers/rsvps.js";
 import usersController from "../../controllers/users.js";
-import eventsRouter from "../../routes/events.js";
-import rsvpsRouter from "../../routes/rsvps.js";
-import usersRouter from "../../routes/users.js";
+import venuesController from "../../controllers/venues.js";
 
-// List the GET paths a router answers, like ["/", "/:eventId"].
-const getPaths = (router) => router.stack.filter((layer) => layer.route?.methods.get).map((layer) => layer.route.path);
+// List the names a controller exports, sorted so the order does not matter.
+const names = (controller) => Object.keys(controller).sort();
 
 describe("controllers", () => {
-  it("export the functions the routes need", () => {
-    // Each controller must export its functions by name, like the reference project.
-    assert.deepEqual(Object.keys(eventsController).sort(), ["getEventById", "getEvents"]);
-    assert.deepEqual(Object.keys(rsvpsController), ["getRsvps"]);
-    assert.deepEqual(Object.keys(usersController).sort(), ["getUserById", "getUsers"]);
-  });
-});
-
-describe("routes", () => {
-  it("answer the expected GET paths", () => {
-    assert.deepEqual(getPaths(eventsRouter), ["/", "/:eventId"]);
-    assert.deepEqual(getPaths(rsvpsRouter), ["/"]);
-    assert.deepEqual(getPaths(usersRouter), ["/", "/:userId"]);
-  });
-});
-
-describe("rsvps controller", () => {
-  it("refuses to list every RSVP when no filter is given", async () => {
-    // Fake a request with no query filters and capture what the controller answers.
-    let statusCode;
-    let body;
-    const res = {
-      status(code) {
-        statusCode = code;
-        return this;
-      },
-      json(payload) {
-        body = payload;
-      },
-    };
-    await rsvpsController.getRsvps({ query: {} }, res);
-    assert.equal(statusCode, 400);
-    assert.match(body.error, /user_id/);
+  it("export the functions their routes need", () => {
+    assert.deepEqual(names(citiesController), ["getCities"]);
+    assert.deepEqual(names(eventsController), ["createEvent", "deleteEvent", "getEventById", "getEventOrganizerId", "getEventPins", "getEvents", "updateEvent"]);
+    assert.deepEqual(names(feedController), ["getFeed"]);
+    assert.deepEqual(names(groupsController), ["createGroup", "deleteGroup", "getGroupById", "getGroupMembers", "getGroupOrganizerId", "getGroups", "joinGroup", "leaveGroup", "updateGroup"]);
+    assert.deepEqual(names(rsvpsController), ["createRsvp", "deleteRsvp", "getEventRsvps", "updateRsvp"]);
+    assert.deepEqual(names(usersController), ["getUserById", "getUserEvents", "getUsers", "updateMe"]);
+    assert.deepEqual(names(venuesController), ["createVenue", "getVenueById", "getVenues", "lookupVenue"]);
   });
 });

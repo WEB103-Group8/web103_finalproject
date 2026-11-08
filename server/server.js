@@ -7,8 +7,11 @@ import { pool } from "./config/database.js";
 import authRouter from "./routes/authRoutes.js";
 import router from "./routes/routes.js";
 import EventsRouter from "./routes/events.js";
-import RsvpsRouter from "./routes/rsvps.js";
 import UsersRouter from "./routes/users.js";
+import CitiesRouter from "./routes/cities.js";
+import FeedRouter from "./routes/feed.js";
+import GroupsRouter from "./routes/groups.js";
+import VenuesRouter from "./routes/venues.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -41,9 +44,12 @@ app.get("/", (_req, res) => {
     endpoints: {
       health: "/health",
       auth: "/auth",
-      users: "/users",
-      events: "/events",
-      rsvps: "/rsvp",
+      users: "/api/users",
+      events: "/api/events",
+      cities: "/api/cities",
+      feed: "/api/feed",
+      groups: "/api/groups",
+      venues: "/api/venues",
     },
   });
 });
@@ -60,9 +66,12 @@ app.get("/health", async (_req, res) => {
 
 app.use("/auth", authRouter);
 app.use("/api", router);
-app.use("/users", UsersRouter);
-app.use("/events", EventsRouter);
-app.use("/rsvp", RsvpsRouter);
+app.use("/api/users", UsersRouter);
+app.use("/api/events", EventsRouter);
+app.use("/api/cities", CitiesRouter);
+app.use("/api/feed", FeedRouter);
+app.use("/api/groups", GroupsRouter);
+app.use("/api/venues", VenuesRouter);
 
 app.use((req, res) => {
   return res.status(404).json({ error: `Route not found: ${req.method} ${req.path}` });
