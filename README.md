@@ -4,7 +4,7 @@ CodePath WEB103 Final Project
 
 Designed and developed by: Annie Gomez, My Pham, Manav Kothari
 
-🔗 Link to deployed app:
+Deployment: not available yet.
 
 ## About
 
@@ -28,6 +28,8 @@ Testing: Vitest and Testing Library (client), Node's built-in test runner (serve
 
 ## Features
 
+Feature GIFs have not been recorded yet.
+
 ### ✅ Database and API
 
 The PostgreSQL database is configured through the server and contains six tables: `users`, `venues`, `groups`, `members`, `events`, and `rsvps`, as shown in the [entity relationship diagram](planning/ERD.png). Users host groups, groups hold events at venues, and users join groups (`members`) and RSVP to events (`rsvps`).
@@ -40,19 +42,19 @@ The Express API provides a root status response, a database health check, and en
 
 The following `psql` screenshots show the tables and sample data:
 
-![PostgreSQL tables](server/assets/tables.JPG)
+![PostgreSQL tables](docs/screenshots/tables.JPG)
 
-![Sample users](server/assets/users.JPG)
+![Sample users](docs/screenshots/users.JPG)
 
-![Sample venues](server/assets/venues.JPG)
+![Sample venues](docs/screenshots/venues.JPG)
 
-![Sample groups](server/assets/groups.JPG)
+![Sample groups](docs/screenshots/groups.JPG)
 
-![Sample members](server/assets/members.JPG)
+![Sample members](docs/screenshots/members.JPG)
 
-![Sample events](server/assets/events.JPG)
+![Sample events](docs/screenshots/events.JPG)
 
-![Sample RSVPs](server/assets/rsvps.JPG)
+![Sample RSVPs](docs/screenshots/rsvps.JPG)
 
 ### ✅ Creating and Hosting
 
@@ -60,39 +62,23 @@ Hosts can create, edit, view, and delete their own events and groups. An event h
 
 Every create, join, and attend shows a short confirmation message, and anything that cancels or deletes (stop attending, leave a group, delete an event or group, or cancel a form with unsaved changes) asks "are you sure?" first.
 
-[gif goes here]
-
 ### ✅ Event Gallery
 
 The home page shows a map of upcoming events with one small pin per event. Hovering over a pin shows the event's title, time, and category, and clicking it opens that event. The Events page shows every event as a grid of cards with a start and end time, the place, and how many people are going, split into pages with a choice of 10 to 50 items per page. Groups have their own grid and pages, and each event and group has a details page that anyone can open without logging in. Times are shown with the venue's time zone (for example 6:30 PM CST), and the event page has a live countdown to the exact start time, whichever time zone you are in.
-
-[gif goes here]
 
 ### ✅ Search and Filter Function
 
 The same filter section appears on the home page, the Events page, and the Groups page: search by event or group name, city, state, ZIP code, and category, plus a start and end date and an "upcoming only" switch. Suggestions drop down as you type, but any text can still be searched. Filters, the page, and the page size are kept in the address, so a search can be shared and the back button works.
 
-[gif goes here]
-
 ### ✅ RSVP Events
 
 Logged-in users can attend an event or say they are not attending, and join or leave groups. Hosts are not offered to attend the events they host. The attendee count updates right away and is put back if the server refuses (for example, when the event just filled up). Events have a capacity, so the last place can never be taken by two people at once. Visitors see a Join button that takes them to log in. The host of an event also sees the list of who answered.
 
-[gif goes here]
-
 ### ✅ Profiles
 
-Every person has a profile page showing their name, location, the events they attend or host, and the groups they joined or organize. Your own profile page shows only your profile: your email and a form to edit your name, location, and photo (saving shows a confirmation message). People who just signed in with GitHub are asked to complete their state, country, and ZIP code. Your own **My events** (Hosted or Attending) and **My groups** (Organized or Joined) are on the home page, below the map, and on the **My Collection** page in the top bar, with the lists you host and organize first.
+Every person has a profile page showing their name, location, the events they attend or host, and the groups they joined or organize. Your own profile page shows your email and a form to edit your name, location, and photo. People who sign in with GitHub are asked to complete their profile details. Your **My events** (Hosted or Attending) and **My groups** (Organized or Joined) are on the home page, below the map, and on the **My Collection** page in the top bar, with the lists you host and organize first.
 
-[gif goes here]
-
-### Collections and Saved Events
-
-Users are able to save events they are interested in into collections or on their own profile.
-
-### Comments and Likes
-
-Users are able to like event posts and comment under them to receive more information.
+Comments, likes, and saved events/collections are not implemented.
 
 ## Installation Instructions
 
