@@ -29,6 +29,33 @@ describe("getUsers", () => {
   });
 });
 
+describe("getMe", () => {
+  it("returns the person's own details, including whether they are a host", async () => {
+    // The setting that names what a host is called, set to match the fake host.
+    process.env[SETTING.hostUserType] = fakeUsers.host.user_type;
+
+    const host = setup([{ rows: [{ user_id: fakeUsers.host.user_id, user_type: fakeUsers.host.user_type }] }]);
+    const hostRes = createRes();
+    await host.controller.getMe({ user: fakeUsers.host }, hostRes);
+    assert.equal(hostRes.statusCode, 200);
+    assert.equal(hostRes.body.is_host, true);
+    assert.match(host.pool.calls[0].sql, /users\.email/);
+    assert.doesNotMatch(host.pool.calls[0].sql, /password|github/);
+    assert.deepEqual(host.pool.calls[0].values, [fakeUsers.host.user_id]);
+
+    const attendee = setup([{ rows: [{ user_id: me.user_id, user_type: me.user_type }] }]);
+    const attendeeRes = createRes();
+    await attendee.controller.getMe({ user: me }, attendeeRes);
+    assert.equal(attendeeRes.body.is_host, false);
+  });
+
+  it("answers 404 if the person no longer exists", async () => {
+    const res = createRes();
+    await setup([{ rows: [] }]).controller.getMe({ user: me }, res);
+    assert.equal(res.statusCode, 404);
+  });
+});
+
 describe("getUserById", () => {
   it("answers 404 for a bad id or a missing person", async () => {
     const bad = setup();
@@ -58,6 +85,32 @@ describe("getUserById", () => {
     assert.match(self.pool.calls[0].sql, /users\.zipcode/);
     // The password and GitHub columns are never selected, even for the person themself.
     assert.doesNotMatch(self.pool.calls[0].sql, /password|github/);
+  });
+});
+
+describe("getUserGroups", () => {
+  it("answers 404 for a bad id or a missing person, without asking for groups", async () => {
+    const bad = setup();
+    const badRes = createRes();
+    await bad.controller.getUserGroups({ params: { userId: "x" } }, badRes);
+
+    const missing = setup([{ rows: [] }]);
+    const missingRes = createRes();
+    await missing.controller.getUserGroups({ params: { userId: "5" } }, missingRes);
+
+    assert.deepEqual([badRes.statusCode, missingRes.statusCode], [404, 404]);
+    assert.equal(bad.pool.calls.length + missing.pool.calls.length, 1);
+  });
+
+  it("gives the groups the person belongs to, with their member counts and whether the person organizes each", async () => {
+    const { pool, controller } = setup([{ rows: [{}] }, { rows: [{ group_id: 1, is_organizer: true, member_count: 4 }] }]);
+    const res = createRes();
+    await controller.getUserGroups({ params: { userId: "5" } }, res);
+
+    assert.deepEqual([res.statusCode, res.body], [200, [{ group_id: 1, is_organizer: true, member_count: 4 }]]);
+    assert.match(pool.calls[1].sql, /FROM members AS mine/);
+    assert.match(pool.calls[1].sql, /groups\.organizer_id = mine\.user_id\) AS is_organizer/);
+    assert.deepEqual(pool.calls[1].values, ["5"]);
   });
 });
 
@@ -153,5 +206,16 @@ describe("updateMe", () => {
     // The answer includes the person's private details but never the password or GitHub columns.
     assert.match(pool.calls[1].sql, /RETURNING .*email/);
     assert.doesNotMatch(pool.calls[1].sql, /password|github/);
+  });
+});
+
+describe("time zones on a person's events", () => {
+  it("gives each event the time zone of its venue, next to the role", async () => {
+    const { controller } = setup([{ rows: [{}] }, { rows: [{ event_id: 1, latitude: 40.7128, longitude: -74.006 }] }]);
+    const res = createRes();
+    await controller.getUserEvents({ params: { userId: "5" }, query: { role: "created" }, user: me }, res);
+
+    assert.equal(res.body[0].timezone, "America/New_York");
+    assert.equal(res.body[0].role, "created");
   });
 });

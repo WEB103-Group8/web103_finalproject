@@ -80,7 +80,6 @@ describe("constraints", () => {
   });
 
   it("refuses words the columns do not allow", async () => {
-    assert.equal(await refusedWith("INSERT INTO groups (organizer_id, group_name, category) SELECT organizer_id, 'x', 'Nonsense' FROM groups LIMIT 1"), "23514");
     assert.equal(await refusedWith("INSERT INTO rsvps (user_id, event_id, rsvp_status) SELECT user_id, event_id + 0, 'maybe' FROM rsvps LIMIT 1"), "23514");
     assert.equal(await refusedWith("INSERT INTO users (full_name, city, user_type) VALUES ('x', 'x', 'stranger')"), "23514");
   });
@@ -149,7 +148,7 @@ describe("rules read back from the database", () => {
 
     // Allowed words match what the data files use.
     const used = (table, column) => [...new Set(TABLES.find((entry) => entry.name === table).rows.map((row) => row[column]))].sort();
-    assert.deepEqual([...rules.allowedWords["groups.category"]].sort(), used("groups", "category"));
+    assert.equal(rules.allowedWords["groups.category"], undefined);
     assert.deepEqual([...rules.allowedWords["users.user_type"]].sort(), used("users", "user_type"));
     assert.deepEqual([...rules.allowedWords["rsvps.rsvp_status"]].sort(), used("rsvps", "rsvp_status"));
 

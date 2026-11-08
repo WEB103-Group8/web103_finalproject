@@ -21,7 +21,8 @@
     "express-session": "^1.18.1",
     "passport": "^0.7.0",
     "passport-github2": "^0.1.12",
-    "pg": "^8.23.1"
+    "pg": "^8.23.1",
+    "tz-lookup": "^6.1.25"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"

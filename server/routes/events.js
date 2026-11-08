@@ -18,6 +18,9 @@ router.post('/', requireHost, EventsController.createEvent)
 // Define a route to get the small records the map needs (this comes before the ID route so "pins" is not read as an ID)
 router.get('/pins', EventsController.getEventPins)
 
+// Define a route to get the answers a person can give to an event (also before the ID route)
+router.get('/rsvp-statuses', RsvpsController.getRsvpStatuses)
+
 // Define a route to get a specific event by its ID
 router.get('/:eventId', EventsController.getEventById)
 

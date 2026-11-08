@@ -1,7 +1,17 @@
-// events joined with their group, the group's organizer (the host), their venue, how many people are attending,
-// and the logged-in visitor's own answer; $1 is the "going" answer and $2 is the visitor's id (or nothing)
+// events joined with their group, the group's organizer (the host), their venue (an online event has none, so its venue columns are empty),
+// how many people are attending, and the logged-in visitor's own answer (and whether that answer means "going");
+// $1 is the "going" answer and $2 is the visitor's id (or nothing); the meeting link of an online event is only given to someone who is logged in
 const EVENTS_WITH_DETAILS = `
-    SELECT events.*,
+    SELECT events.event_id,
+           events.group_id,
+           events.venue_id,
+           events.event_title,
+           events.description,
+           events.start_time,
+           events.end_time,
+           events.capacity,
+           events.event_image_url,
+           CASE WHEN $2::bigint IS NOT NULL THEN events.meeting_link END AS meeting_link,
            groups.group_name,
            groups.category,
            users.user_id AS host_id,
@@ -15,11 +25,12 @@ const EVENTS_WITH_DETAILS = `
            venues.latitude,
            venues.longitude,
            COUNT(rsvps.rsvp_id) FILTER (WHERE rsvps.rsvp_status = $1)::int AS rsvp_count,
-           (SELECT mine.rsvp_status FROM rsvps AS mine WHERE mine.event_id = events.event_id AND mine.user_id = $2) AS my_rsvp
+           (SELECT mine.rsvp_status FROM rsvps AS mine WHERE mine.event_id = events.event_id AND mine.user_id = $2) AS my_rsvp,
+           COALESCE((SELECT mine.rsvp_status = $1 FROM rsvps AS mine WHERE mine.event_id = events.event_id AND mine.user_id = $2), false) AS is_attending
     FROM events
     JOIN groups ON groups.group_id = events.group_id
     JOIN users ON users.user_id = groups.organizer_id
-    JOIN venues ON venues.venue_id = events.venue_id
+    LEFT JOIN venues ON venues.venue_id = events.venue_id
     LEFT JOIN rsvps ON rsvps.event_id = events.event_id`
 
 // one row per event, even though each event can join many RSVPs

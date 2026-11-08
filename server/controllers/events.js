@@ -4,6 +4,7 @@ import { EVENTS_WITH_DETAILS, EVENT_PINS, ONE_ROW_PER_EVENT, ONE_ROW_PER_PIN } f
 import { sendDatabaseError, sendNotFound, sendValidationError } from '../utils/http.js'
 import { createRulesLoader } from '../utils/schemaRules.js'
 import { addSearchConditions } from '../utils/search.js'
+import { addTimezone, addTimezones } from '../utils/timezone.js'
 import { SETTING, requireSetting } from '../utils/settings.js'
 import { buildSchedule, isValidId, validateEventInput } from '../utils/validators.js'
 
@@ -11,23 +12,27 @@ import { buildSchedule, isValidId, validateEventInput } from '../utils/validator
 const FILTER_COLUMNS = {
     state: 'venues.state',
     city: 'venues.city',
+    zipcode: 'venues.postal_code',
     category: 'groups.category',
     group_id: 'events.group_id',
     venue_id: 'events.venue_id'
 }
 
+// the filters that compare words, so "austin" finds "Austin"
+const TEXT_FILTERS = new Set(['state', 'city', 'zipcode', 'category'])
+
 // the columns the search words are matched against
 const SEARCH_COLUMNS = ['events.event_title', 'events.description', 'groups.group_name', 'venues.venue_name', 'venues.city']
 
 // the event fields that are saved as they are (the date, time and duration are saved as start and end times)
-const DIRECT_FIELDS = ['group_id', 'venue_id', 'event_title', 'description', 'capacity', 'event_image_url']
+const DIRECT_FIELDS = ['group_id', 'venue_id', 'meeting_link', 'event_title', 'description', 'capacity', 'event_image_url']
 
 // add the conditions for every filter, search word and date that was sent in the query string
 const addEventFilters = (query, values, conditions) => {
     for (const [name, column] of Object.entries(FILTER_COLUMNS)) {
         if (query[name]) {
             values.push(query[name])
-            conditions.push(`${column} = $${values.length}`)
+            conditions.push(TEXT_FILTERS.has(name) ? `LOWER(${column}) = LOWER($${values.length})` : `${column} = $${values.length}`)
         }
     }
     addSearchConditions(query.q, SEARCH_COLUMNS, values, conditions)
@@ -56,7 +61,7 @@ const createEventsController = ({ pool = defaultPool, loadRules = createRulesLoa
             visitorId(req),
             eventId
         ])
-        return results.rows[0]
+        return results.rows[0] && addTimezone(results.rows[0])
     }
 
     // check that a group exists and belongs to the visitor; returns a problem or null
@@ -103,7 +108,7 @@ const createEventsController = ({ pool = defaultPool, loadRules = createRulesLoa
             }
 
             const results = await pool.query(EVENTS_WITH_DETAILS + where + ONE_ROW_PER_EVENT + order + tail, values)
-            res.status(200).json(results.rows)
+            res.status(200).json(addTimezones(results.rows))
         } catch (error) {
             sendDatabaseError(res, 'fetch events', error)
         }
@@ -118,7 +123,7 @@ const createEventsController = ({ pool = defaultPool, loadRules = createRulesLoa
 
             const where = conditions.length > 0 ? ` WHERE ${conditions.join(' AND ')}` : ''
             const results = await pool.query(EVENT_PINS + where + ONE_ROW_PER_PIN + ' ORDER BY events.start_time ASC', values)
-            res.status(200).json(results.rows)
+            res.status(200).json(addTimezones(results.rows))
         } catch (error) {
             sendDatabaseError(res, 'fetch the map pins', error)
         }
@@ -156,16 +161,21 @@ const createEventsController = ({ pool = defaultPool, loadRules = createRulesLoa
             // the group must be one the host organizes, and the venue must exist
             const groupProblem = await checkGroup(body.group_id, req.user.user_id)
             if (groupProblem) return sendReferenceProblem(res, 'group_id', groupProblem)
-            const venueProblem = await checkVenue(body.venue_id)
-            if (venueProblem) return sendReferenceProblem(res, 'venue_id', venueProblem)
+            // an online event has no venue, only a meeting link
+            const isOnline = body.venue_id === undefined || body.venue_id === null || body.venue_id === ''
+            if (!isOnline) {
+                const venueProblem = await checkVenue(body.venue_id)
+                if (venueProblem) return sendReferenceProblem(res, 'venue_id', venueProblem)
+            }
 
             const created = await pool.query(
-                `INSERT INTO events (group_id, venue_id, event_title, description, start_time, end_time, capacity, event_image_url)
-                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+                `INSERT INTO events (group_id, venue_id, meeting_link, event_title, description, start_time, end_time, capacity, event_image_url)
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
                  RETURNING event_id`,
                 [
                     body.group_id,
-                    body.venue_id,
+                    isOnline ? null : body.venue_id,
+                    isOnline ? body.meeting_link.trim() : null,
                     body.event_title.trim(),
                     body.description.trim(),
                     schedule.start_time,
@@ -195,7 +205,7 @@ const createEventsController = ({ pool = defaultPool, loadRules = createRulesLoa
                 `SELECT to_char(start_time, 'YYYY-MM-DD') AS date,
                         to_char(start_time, 'HH24:MI') AS time,
                         (EXTRACT(EPOCH FROM (end_time - start_time)) / 60)::int AS duration_minutes,
-                        group_id
+                        group_id, venue_id, meeting_link
                  FROM events WHERE event_id = $1`,
                 [eventId]
             )
@@ -207,7 +217,7 @@ const createEventsController = ({ pool = defaultPool, loadRules = createRulesLoa
             for (const field of DIRECT_FIELDS) {
                 if (body[field] === undefined) continue
                 const value = typeof body[field] === 'string' ? body[field].trim() : body[field]
-                changes[field] = field === 'event_image_url' && value === '' ? null : value
+                changes[field] = (field === 'event_image_url' || field === 'meeting_link') && value === '' ? null : value
             }
 
             // a new date, time or length changes both start and end; only a new date or time must be in the future
@@ -226,10 +236,15 @@ const createEventsController = ({ pool = defaultPool, loadRules = createRulesLoa
                 const groupProblem = await checkGroup(body.group_id, req.user.user_id)
                 if (groupProblem) return sendReferenceProblem(res, 'group_id', groupProblem)
             }
-            if (body.venue_id !== undefined) {
+            // the venue must exist, and after the change the event must be either at a venue or online (a meeting link), not both
+            if (body.venue_id !== undefined && body.venue_id !== null) {
                 const venueProblem = await checkVenue(body.venue_id)
                 if (venueProblem) return sendReferenceProblem(res, 'venue_id', venueProblem)
             }
+            const venueAfter = body.venue_id !== undefined ? body.venue_id : existing.venue_id
+            const linkAfter = body.meeting_link !== undefined ? changes.meeting_link : existing.meeting_link
+            if (!venueAfter && !linkAfter) return sendValidationError(res, { venue_id: 'Choose a venue or enter a meeting link.' })
+            if (venueAfter && linkAfter) return sendValidationError(res, { meeting_link: 'Choose a venue or enter a meeting link, not both.' })
 
             // the capacity may not drop below the number of people who already said they are going
             if (body.capacity !== undefined) {

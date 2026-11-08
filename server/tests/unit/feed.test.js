@@ -76,3 +76,14 @@ describe("getFeed", () => {
     assert.equal(bad.pool.calls.length, 0);
   });
 });
+
+describe("time zones in the feed", () => {
+  it("gives each event the time zone of its venue", async () => {
+    const withPlace = { event_id: 1, latitude: 30.2672, longitude: -97.7431 };
+    const { controller } = setup([{ rows: [withPlace] }, { rows: [] }, { rows: [] }]);
+    const res = createRes();
+    await controller.getFeed({ query: {}, user: fakeUsers.attendee }, res);
+
+    assert.equal(res.body.byGroups[0].timezone, "America/Chicago");
+  });
+});

@@ -5,7 +5,6 @@ import { isHttpUrl, isValidId, validateAddress, validateGroupInput, validateVenu
 
 // Small made-up rules, so these tests do not depend on any real list or length.
 const rules = {
-  allowedWords: { "groups.category": ["Alpha", "Beta"] },
   maxLengths: { "venues.venue_name": 10, "venues.address": 20, "groups.group_name": 8 },
 };
 
@@ -56,10 +55,11 @@ describe("validateGroupInput", () => {
     assert.deepEqual(Object.keys(validateGroupInput({}, rules)).sort(), ["category", "group_name"]);
   });
 
-  it("rejects a name that is too long and a category the database does not allow", () => {
-    const details = validateGroupInput({ group_name: "x".repeat(9), category: "Gamma" }, rules);
+  it("rejects a name that is too long and a blank category, but accepts any new category word", () => {
+    const details = validateGroupInput({ group_name: "x".repeat(9), category: "  " }, rules);
     assert.match(details.group_name, /at most 8/);
-    assert.match(details.category, /Alpha, Beta/);
+    assert.match(details.category, /required/);
+    assert.deepEqual(validateGroupInput({ group_name: "Cooks", category: "Brand New Category" }, rules), {});
   });
 
   it("rejects a description that is not text and an image that is not a web address", () => {
@@ -69,7 +69,7 @@ describe("validateGroupInput", () => {
 
   it("checks only the fields that were sent when editing", () => {
     assert.deepEqual(validateGroupInput({ category: "Beta" }, rules, { partial: true }), {});
-    assert.ok(validateGroupInput({ category: "Gamma" }, rules, { partial: true }).category);
+    assert.ok(validateGroupInput({ category: "" }, rules, { partial: true }).category);
     assert.ok(validateGroupInput({ group_name: "" }, rules, { partial: true }).group_name);
   });
 

@@ -7,7 +7,8 @@ const isLoggedIn = (req) => Boolean(req.user) && !req.user.isNewUser
 // let the request through only if someone is logged in
 const requireUser = (req, res, next) => {
     if (!isLoggedIn(req)) {
-        return res.status(401).json({ error: 'Please log in or sign up first.' })
+        // someone who signed in with GitHub but has not finished onboarding is told so, so the page can send them to finish it
+        return res.status(401).json({ error: 'Please log in or sign up first.', needsOnboarding: Boolean(req.user?.isNewUser) })
     }
     next()
 }

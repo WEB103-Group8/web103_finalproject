@@ -1,0 +1,14 @@
+.not-found {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 64px 16px;
+  text-align: center;
+}
+
+.not-found-code {
+  margin: 0;
+  font-size: 5rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: #bbb;
+}

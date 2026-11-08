@@ -1,0 +1,52 @@
+.combobox {
+  position: relative;
+}
+
+/* the dropdown sits just under the text box and floats over what follows */
+.combobox-list {
+  position: absolute;
+  top: calc(100% - 12px);
+  left: 0;
+  right: 0;
+  z-index: 10;
+  max-height: 260px;
+  margin: 0;
+  padding: 4px;
+  overflow-y: auto;
+  border: 1px solid #d0d0d0;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  list-style: none;
+}
+
+.combobox-list li {
+  margin: 0;
+}
+
+.combobox-list button {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  text-align: left;
+}
+
+.combobox-list button:hover:not(:disabled),
+.combobox-list button:focus {
+  background: #f2f2f2;
+}
+
+.combobox-list .combobox-add {
+  font-weight: 600;
+}
+
+.combobox-none {
+  padding: 8px 12px;
+  color: #666;
+}
+
+.field-note {
+  margin: -8px 0 16px;
+  color: #555;
+  font-size: 0.9rem;
+}

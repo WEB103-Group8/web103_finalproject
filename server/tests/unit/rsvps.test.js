@@ -23,6 +23,16 @@ const request = (body) => ({ params: { eventId: "9" }, body, user });
 // Pick out the steps a transaction took, by the first word of each query.
 const steps = (pool) => pool.calls.map((call) => call.sql.split(" ")[0]);
 
+describe("getRsvpStatuses", () => {
+  it("gives the going answer from the settings and the other allowed answer from the database", async () => {
+    const { controller } = setup();
+    const res = createRes();
+    await controller.getRsvpStatuses({}, res);
+
+    assert.deepEqual([res.statusCode, res.body], [200, { attending: "going-word", notAttending: "not-going" }]);
+  });
+});
+
 describe("createRsvp", () => {
   it("answers 404 for a bad event id and 400 for an answer the database does not allow, without starting a transaction", async () => {
     const bad = setup();

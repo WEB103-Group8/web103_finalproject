@@ -2,6 +2,7 @@ import { pool as defaultPool } from '../config/database.js'
 import { EVENTS_WITH_DETAILS, ONE_ROW_PER_EVENT } from '../utils/eventSql.js'
 import { sendDatabaseError, sendValidationError } from '../utils/http.js'
 import { SETTING, requireSetting } from '../utils/settings.js'
+import { addTimezones } from '../utils/timezone.js'
 
 // only events that have not started yet
 const UPCOMING = 'events.start_time >= localtimestamp'
@@ -30,7 +31,7 @@ const createFeedController = ({ pool = defaultPool } = {}) => {
                 }
 
                 const results = await pool.query(EVENTS_WITH_DETAILS + ` WHERE ${conditions.join(' AND ')}` + ONE_ROW_PER_EVENT + order + tail, values)
-                return results.rows
+                return addTimezones(results.rows)
             }
 
             // events near the visitor: their city first, then the rest of their state (or just their city if the state is unknown)

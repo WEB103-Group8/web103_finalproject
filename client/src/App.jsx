@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './context/AuthContext'
 import Home from './pages/Home'
 import Login from './pages/Login'
 import Onboarding from './pages/Onboarding'
+import OrbitRoutes from './OrbitRoutes'
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth()
@@ -25,6 +26,7 @@ function App() {
     <BrowserRouter>
       <AuthProvider>
         <Routes>
+          {OrbitRoutes()}
           <Route path="/login" element={<Login />} />
           <Route
             path="/onboarding"

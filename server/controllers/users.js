@@ -4,6 +4,7 @@ import { EVENTS_WITH_DETAILS, ONE_ROW_PER_EVENT } from '../utils/eventSql.js'
 import { sendDatabaseError, sendNotFound, sendValidationError } from '../utils/http.js'
 import { createRulesLoader } from '../utils/schemaRules.js'
 import { SETTING, requireSetting } from '../utils/settings.js'
+import { addTimezone } from '../utils/timezone.js'
 import { PROFILE_FIELDS, isValidId, validateProfileInput } from '../utils/validators.js'
 
 // the details anyone can see about a person (never the password or the GitHub columns)
@@ -26,6 +27,19 @@ const createUsersController = ({ pool = defaultPool, loadRules = createRulesLoad
             res.status(200).json(results.rows)
         } catch (error) {
             sendDatabaseError(res, 'fetch users', error)
+        }
+    }
+
+    // the logged-in person's own profile, including whether they are a host (so pages know which buttons to show)
+    const getMe = async (req, res) => {
+        try {
+            const results = await pool.query(`SELECT ${SELF_COLUMNS} FROM users WHERE users.user_id = $1`, [req.user.user_id])
+            if (results.rows.length === 0) return sendNotFound(res, 'User')
+
+            const me = results.rows[0]
+            res.status(200).json({ ...me, is_host: me.user_type === requireSetting(SETTING.hostUserType) })
+        } catch (error) {
+            sendDatabaseError(res, 'fetch your profile', error)
         }
     }
 
@@ -67,12 +81,42 @@ const createUsersController = ({ pool = defaultPool, loadRules = createRulesLoad
             const events = []
             for (const name of roles) {
                 const results = await pool.query(`${EVENTS_WITH_DETAILS} WHERE ${EVENT_ROLES[name]}${ONE_ROW_PER_EVENT} ORDER BY events.start_time ASC`, values)
-                events.push(...results.rows.map((row) => ({ ...row, role: name })))
+                events.push(...results.rows.map((row) => ({ ...addTimezone(row), role: name })))
             }
 
             res.status(200).json(events)
         } catch (error) {
             sendDatabaseError(res, 'fetch the events', error)
+        }
+    }
+
+    // the groups a person belongs to (the ones they organize included), each tagged with whether they organize it
+    const getUserGroups = async (req, res) => {
+        try {
+            const userId = req.params.userId
+            if (!isValidId(userId)) return sendNotFound(res, 'User')
+
+            const person = await pool.query('SELECT 1 FROM users WHERE user_id = $1', [userId])
+            if (person.rows.length === 0) return sendNotFound(res, 'User')
+
+            const results = await pool.query(
+                `SELECT groups.*,
+                        organizers.full_name AS organizer_name,
+                        COUNT(everyone.membership_id)::int AS member_count,
+                        (groups.organizer_id = mine.user_id) AS is_organizer
+                 FROM members AS mine
+                 JOIN groups ON groups.group_id = mine.group_id
+                 JOIN users AS organizers ON organizers.user_id = groups.organizer_id
+                 LEFT JOIN members AS everyone ON everyone.group_id = groups.group_id
+                 WHERE mine.user_id = $1
+                 GROUP BY groups.group_id, organizers.user_id, mine.user_id
+                 ORDER BY groups.group_name ASC`,
+                [userId]
+            )
+
+            res.status(200).json(results.rows)
+        } catch (error) {
+            sendDatabaseError(res, 'fetch the groups', error)
         }
     }
 
@@ -110,7 +154,7 @@ const createUsersController = ({ pool = defaultPool, loadRules = createRulesLoad
         }
     }
 
-    return { getUsers, getUserById, getUserEvents, updateMe }
+    return { getUsers, getMe, getUserById, getUserEvents, getUserGroups, updateMe }
 }
 
 export { createUsersController }

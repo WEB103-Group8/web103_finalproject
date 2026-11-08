@@ -1,4 +1,4 @@
-// the rules come from the database (see schemaRules.js): rules.allowedWords['groups.category'] and rules.maxLengths['venues.venue_name']
+// the rules come from the database (see schemaRules.js): rules.allowedWords['rsvps.rsvp_status'] and rules.maxLengths['venues.venue_name']
 
 // ids in the address bar must be plain whole numbers
 const ID_PATTERN = /^\d+$/
@@ -57,12 +57,9 @@ const validateGroupInput = (body, rules, { partial = false } = {}) => {
         checkText(details, 'group_name', body.group_name, 'Group name', rules.maxLengths['groups.group_name'])
     }
 
-    // the category must be one of the words the database allows
+    // the category is any text; a new word simply becomes a new category
     if (!partial || sent('category')) {
-        const categories = rules.allowedWords['groups.category'] ?? []
-        if (!categories.includes(body.category)) {
-            details.category = `Category must be one of: ${categories.join(', ')}.`
-        }
+        checkText(details, 'category', body.category, 'Category', rules.maxLengths['groups.category'])
     }
 
     // the description is optional, but when it is sent it must be text
@@ -81,7 +78,7 @@ const validateGroupInput = (body, rules, { partial = false } = {}) => {
 }
 
 // the fields an event can have
-const EVENT_FIELDS = ['group_id', 'venue_id', 'event_title', 'description', 'date', 'time', 'duration_minutes', 'capacity', 'event_image_url']
+const EVENT_FIELDS = ['group_id', 'venue_id', 'meeting_link', 'event_title', 'description', 'date', 'time', 'duration_minutes', 'capacity', 'event_image_url']
 
 // the shapes a date and a time must be typed in
 const DATE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/
@@ -122,7 +119,15 @@ const validateEventInput = (body, rules, { partial = false } = {}) => {
     }
 
     if (needed('group_id') && !isValidId(body.group_id)) details.group_id = 'Choose a group.'
-    if (needed('venue_id') && !isValidId(body.venue_id)) details.venue_id = 'Choose a venue.'
+    // where the event happens: a venue, or a meeting link for an online event, never both
+    const hasVenue = body.venue_id !== undefined && body.venue_id !== null && body.venue_id !== ''
+    const hasLink = typeof body.meeting_link === 'string' ? body.meeting_link.trim() !== '' : body.meeting_link !== undefined && body.meeting_link !== null
+    if (hasVenue && !isValidId(body.venue_id)) details.venue_id = 'Choose a venue.'
+    if (hasLink && (typeof body.meeting_link !== 'string' || !isHttpUrl(body.meeting_link.trim()))) {
+        details.meeting_link = 'The meeting link must be a web address starting with http:// or https://.'
+    }
+    if (hasVenue && hasLink) details.meeting_link = 'Choose a venue or enter a meeting link, not both.'
+    if (!partial && !hasVenue && !hasLink) details.venue_id = 'Choose a venue or enter a meeting link.'
 
     if (needed('event_title')) checkText(details, 'event_title', body.event_title, 'Title', rules.maxLengths['events.event_title'])
     if (needed('description')) checkText(details, 'description', body.description, 'Description', rules.maxLengths['events.description'])

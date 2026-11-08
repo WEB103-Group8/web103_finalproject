@@ -35,6 +35,17 @@ describe("requireUser", () => {
     assert.equal(await run(requireUser, fakeUsers.attendee), "next");
     assert.equal(await run(requireUser, fakeUsers.host), "next");
   });
+
+  it("tells a GitHub user who has not finished onboarding to finish it, and tells a plain visitor to log in", async () => {
+    // Capture what was sent back, not just the status.
+    const answer = (user) => {
+      const res = { status: () => res, json: (body) => Object.assign(res, { sent: body }) };
+      requireUser({ user }, res, () => {});
+      return res.sent;
+    };
+    assert.equal(answer(fakeUsers.newUser).needsOnboarding, true);
+    assert.equal(answer(fakeUsers.anonymous).needsOnboarding, false);
+  });
 });
 
 describe("requireHost", () => {

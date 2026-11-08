@@ -1,6 +1,6 @@
 import { pool as defaultPool } from '../config/database.js'
 import { isLoggedIn } from '../utils/access.js'
-import { sendNotFound, sendServerError, sendValidationError } from '../utils/http.js'
+import { sendDatabaseError, sendNotFound, sendServerError, sendValidationError } from '../utils/http.js'
 import { createRulesLoader } from '../utils/schemaRules.js'
 import { addSearchConditions } from '../utils/search.js'
 import { GROUP_FIELDS, isValidId, validateGroupInput } from '../utils/validators.js'
@@ -9,7 +9,8 @@ import { GROUP_FIELDS, isValidId, validateGroupInput } from '../utils/validators
 const FILTER_COLUMNS = {
     category: 'groups.category',
     city: 'users.city',
-    state: 'users.state'
+    state: 'users.state',
+    zipcode: 'users.zipcode'
 }
 
 // the columns the search words are matched against
@@ -26,6 +27,9 @@ const GROUPS_WITH_DETAILS = `
     FROM groups
     JOIN users ON users.user_id = groups.organizer_id
     LEFT JOIN members ON members.group_id = groups.group_id`
+
+// a typed category reuses the spelling of an existing one that differs only in capital letters ($n is the placeholder of the typed word)
+const CATEGORY_SPELLING = 'COALESCE((SELECT kept.category FROM groups AS kept WHERE LOWER(kept.category) = LOWER($n) LIMIT 1), $n)'
 
 // one row per group, even though each group can join many members
 const ONE_ROW_PER_GROUP = ' GROUP BY groups.group_id, users.user_id'
@@ -56,16 +60,32 @@ const createGroupsController = ({ pool = defaultPool, loadRules = createRulesLoa
             for (const [name, column] of Object.entries(FILTER_COLUMNS)) {
                 if (req.query[name]) {
                     values.push(req.query[name])
-                    conditions.push(`${column} = $${values.length}`)
+                    // compare words without caring about capital letters, so "austin" finds "Austin"
+                    conditions.push(`LOWER(${column}) = LOWER($${values.length})`)
                 }
             }
             addSearchConditions(req.query.q, SEARCH_COLUMNS, values, conditions)
+
+            // the same date filters as events: only groups that have an event in that time (one event must meet all of them)
+            const eventConditions = []
+            if (req.query.from) {
+                values.push(req.query.from)
+                eventConditions.push(`events.start_time >= $${values.length}`)
+            }
+            if (req.query.to) {
+                values.push(req.query.to)
+                eventConditions.push(`events.start_time < ($${values.length}::date + 1)`)
+            }
+            if (req.query.upcoming === 'true') eventConditions.push('events.start_time >= localtimestamp')
+            if (eventConditions.length > 0) {
+                conditions.push(`EXISTS (SELECT 1 FROM events WHERE events.group_id = groups.group_id AND ${eventConditions.join(' AND ')})`)
+            }
 
             const where = conditions.length > 0 ? ` WHERE ${conditions.join(' AND ')}` : ''
             const results = await pool.query(GROUPS_WITH_DETAILS + where + ONE_ROW_PER_GROUP + ' ORDER BY groups.group_name ASC', values)
             res.status(200).json(results.rows)
         } catch (error) {
-            sendServerError(res, 'fetch groups', error)
+            sendDatabaseError(res, 'fetch groups', error)
         }
     }
 
@@ -107,7 +127,7 @@ const createGroupsController = ({ pool = defaultPool, loadRules = createRulesLoa
                 await client.query('BEGIN')
                 const created = await client.query(
                     `INSERT INTO groups (organizer_id, group_name, description, category, group_image_url)
-                     VALUES ($1, $2, $3, $4, $5)
+                     VALUES ($1, $2, $3, ${CATEGORY_SPELLING.replaceAll('$n', '$4')}, $5)
                      RETURNING *`,
                     [req.user.user_id, fields.group_name, fields.description ?? null, fields.category, fields.group_image_url ?? null]
                 )
@@ -139,7 +159,7 @@ const createGroupsController = ({ pool = defaultPool, loadRules = createRulesLoa
 
             // change only the fields that were sent (the names come from the fixed list of group fields)
             const changes = cleanGroupFields(body)
-            const assignments = Object.keys(changes).map((field, index) => `${field} = $${index + 1}`)
+            const assignments = Object.keys(changes).map((field, index) => (field === 'category' ? `category = ${CATEGORY_SPELLING.replaceAll('$n', `$${index + 1}`)}` : `${field} = $${index + 1}`))
             const values = [...Object.values(changes), groupId]
 
             const results = await pool.query(`UPDATE groups SET ${assignments.join(', ')} WHERE group_id = $${values.length} RETURNING *`, values)

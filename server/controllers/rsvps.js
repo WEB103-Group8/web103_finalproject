@@ -159,7 +159,18 @@ const createRsvpsController = ({ pool = defaultPool, loadRules = createRulesLoad
         }
     }
 
-    return { createRsvp, updateRsvp, deleteRsvp, getEventRsvps }
+    // the two answers a person can give, so the page never needs to type the words: "going" and the other allowed answer
+    const getRsvpStatuses = async (req, res) => {
+        try {
+            const attending = requireSetting(SETTING.attendingStatus)
+            const allowed = (await loadRules()).allowedWords['rsvps.rsvp_status'] ?? []
+            res.status(200).json({ attending, notAttending: allowed.find((word) => word !== attending) ?? null })
+        } catch (error) {
+            sendDatabaseError(res, 'fetch the answers', error)
+        }
+    }
+
+    return { createRsvp, updateRsvp, deleteRsvp, getEventRsvps, getRsvpStatuses }
 }
 
 export { createRsvpsController }

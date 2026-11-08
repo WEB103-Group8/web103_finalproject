@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import { after, before, describe, it } from "node:test";
 import { pool, setUpTestDatabase, tearDownTestDatabase } from "../helpers/testDatabase.js";
 import { startFakeGeocoder, startTestServer } from "../helpers/testServer.js";
+import categoriesRouter from "../../routes/categories.js";
 import citiesRouter from "../../routes/cities.js";
 import eventsRouter from "../../routes/events.js";
 import feedRouter from "../../routes/feed.js";
@@ -15,6 +16,7 @@ import { SETTING } from "../../utils/settings.js";
 
 // Where each router is mounted, as in server.js.
 const mounts = [
+  ["/api/categories", categoriesRouter],
   ["/api/cities", citiesRouter],
   ["/api/events", eventsRouter],
   ["/api/feed", feedRouter],
@@ -63,7 +65,8 @@ before(async () => {
   // The people the requests can pretend to be.
   const [host, otherHost] = await people("host", 2);
   const [attendee, attendee2, attendee3] = await people("attendee", 3);
-  const users = { host, otherHost, attendee, attendee2, attendee3 };
+  // Plus someone who signed in with GitHub but has not finished onboarding.
+  const users = { host, otherHost, attendee, attendee2, attendee3, newcomer: { isNewUser: true, github_id: "1" } };
   Object.assign(state, { users, hostGroup: await groupOf(host), otherGroup: await groupOf(otherHost) });
   state.venueId = (await pool.query("SELECT venue_id FROM venues ORDER BY venue_id LIMIT 1")).rows[0].venue_id;
   state.category = (await pool.query("SELECT category FROM groups LIMIT 1")).rows[0].category;
@@ -90,7 +93,9 @@ describe("reading, open to everyone", () => {
     for (const key of ["group_name", "category", "host_name", "venue_name", "city", "state"]) assert.equal(typeof event[key], "string", key);
     assert.equal(typeof event.latitude, "number");
     assert.equal(typeof event.rsvp_count, "number");
+    assert.match(event.timezone, /^[A-Za-z_]+\/[A-Za-z_]+/);
     assert.equal(event.my_rsvp, null);
+    assert.equal(event.is_attending, false);
   });
 
   it("filters, searches, sorts and pages events", async () => {
@@ -110,13 +115,22 @@ describe("reading, open to everyone", () => {
     assert.equal((await call("GET", "/api/events?limit=abc")).status, 400);
   });
 
+  it("tells the page the two answers a person can give, read from the settings and the database", async () => {
+    const statuses = await call("GET", "/api/events/rsvp-statuses");
+
+    assert.equal(statuses.status, 200);
+    assert.equal(statuses.body.attending, process.env[SETTING.attendingStatus]);
+    assert.equal(typeof statuses.body.notAttending, "string");
+    assert.notEqual(statuses.body.notAttending, statuses.body.attending);
+  });
+
   it("gives the map one small record per event, filtered like the list", async () => {
     const list = await call("GET", "/api/events?state=TX");
     const pins = await call("GET", "/api/events/pins?state=TX");
 
     assert.equal(pins.status, 200);
     assert.equal(pins.body.length, list.body.length);
-    assert.deepEqual(Object.keys(pins.body[0]).sort(), ["category", "event_id", "event_title", "latitude", "longitude", "rsvp_count", "start_time"]);
+    assert.deepEqual(Object.keys(pins.body[0]).sort(), ["category", "event_id", "event_title", "latitude", "longitude", "rsvp_count", "start_time", "timezone"]);
     assert.equal(typeof pins.body[0].longitude, "number");
   });
 
@@ -143,6 +157,9 @@ describe("reading, open to everyone", () => {
     const cityTotal = (await pool.query("SELECT COUNT(*)::int AS total FROM (SELECT DISTINCT city, state, postal_code FROM venues) AS cities")).rows[0].total;
     assert.equal((await call("GET", "/api/cities")).body.length, cityTotal);
 
+    const categories = await call("GET", "/api/categories");
+    assert.ok(categories.body.length > 0 && categories.body.includes(state.category));
+
     const everyone = await call("GET", "/api/users");
     assert.ok(everyone.body.length > 0 && everyone.body.every((person) => !("email" in person)));
     const stranger = await call("GET", `/api/users/${state.users.attendee.user_id}`);
@@ -159,6 +176,17 @@ describe("reading, open to everyone", () => {
     assert.equal((await call("GET", `/api/users/${state.users.host.user_id}/events?role=spectator`)).status, 400);
     assert.equal((await call("GET", "/api/users/999999/events")).status, 404);
   });
+
+  it("lists the groups a person belongs to, marking the ones they organize", async () => {
+    const hostGroups = await call("GET", `/api/users/${state.users.host.user_id}/groups`);
+    assert.equal(hostGroups.status, 200);
+    assert.ok(hostGroups.body.length > 0);
+    assert.ok(hostGroups.body.every((group) => typeof group.member_count === "number" && typeof group.is_organizer === "boolean"));
+    assert.ok(hostGroups.body.some((group) => group.is_organizer === true));
+
+    assert.equal((await call("GET", "/api/users/999999/groups")).status, 404);
+    assert.equal((await call("GET", "/api/users/abc/groups")).status, 404);
+  });
 });
 
 describe("groups", () => {
@@ -166,7 +194,7 @@ describe("groups", () => {
     const body = { group_name: "Integration Group", category: state.category, description: "Made by a test" };
     assert.equal((await call("POST", "/api/groups", { body })).status, 401);
     assert.equal((await call("POST", "/api/groups", { as: "attendee", body })).status, 403);
-    assert.equal((await call("POST", "/api/groups", { as: "host", body: { ...body, category: "Nonsense" } })).body.details.category !== undefined, true);
+    assert.equal((await call("POST", "/api/groups", { as: "host", body: { ...body, category: "  " } })).body.details.category !== undefined, true);
 
     const created = await call("POST", "/api/groups", { as: "host", body });
     assert.equal(created.status, 201);
@@ -174,6 +202,19 @@ describe("groups", () => {
 
     const members = await call("GET", `/api/groups/${state.groupId}/members`);
     assert.deepEqual(members.body.map((member) => member.user_id), [state.users.host.user_id]);
+  });
+
+  it("lets a host start a brand-new category, which then shows up for everyone, and reuses the spelling of an existing one", async () => {
+    const brandNew = await call("POST", "/api/groups", { as: "host", body: { group_name: "Category Test", category: "Zzz Brand New" } });
+    assert.equal(brandNew.status, 201);
+    assert.equal(brandNew.body.category, "Zzz Brand New");
+    assert.ok((await call("GET", "/api/categories")).body.includes("Zzz Brand New"));
+
+    const sameWord = await call("POST", "/api/groups", { as: "host", body: { group_name: "Category Test Two", category: "zzz brand new" } });
+    assert.equal(sameWord.body.category, "Zzz Brand New");
+
+    await call("DELETE", `/api/groups/${brandNew.body.group_id}`, { as: "host" });
+    await call("DELETE", `/api/groups/${sameWord.body.group_id}`, { as: "host" });
   });
 
   it("lets only the organizer edit or delete the group", async () => {
@@ -311,6 +352,7 @@ describe("events", () => {
     assert.deepEqual([listing.body.capacity, listing.body.attending, listing.body.counts], [2, 2, { attending: 2, not_attending: 1 }]);
 
     assert.equal((await call("GET", `/api/events/${state.eventId}`, { as: "attendee2" })).body.my_rsvp, "attending");
+    assert.equal((await call("GET", `/api/events/${state.eventId}`, { as: "attendee2" })).body.is_attending, true);
     assert.equal((await call("DELETE", `${rsvps}/me`, { as: "attendee" })).status, 204);
     assert.equal((await call("DELETE", `${rsvps}/me`, { as: "attendee" })).status, 404);
   });
@@ -327,6 +369,77 @@ describe("events", () => {
     assert.equal((await call("DELETE", path, { as: "host" })).status, 204);
     assert.equal((await call("GET", path)).status, 404);
     assert.equal((await pool.query("SELECT COUNT(*)::int AS total FROM rsvps WHERE event_id = $1", [state.eventId])).rows[0].total, 0);
+  });
+});
+
+describe("online events", () => {
+  const onlineBody = (changes = {}) => ({
+    group_id: state.hostGroup,
+    meeting_link: "https://meet.example.com/orbit-test",
+    event_title: "Online Integration Meetup",
+    description: "Created by a test, with no venue.",
+    date: dayFromNow(2),
+    time: "19:00",
+    duration_minutes: 60,
+    capacity: 5,
+    ...changes,
+  });
+
+  it("lets a host create an event with a meeting link instead of a venue, and only logged-in people see the link", async () => {
+    const created = await call("POST", "/api/events", { as: "host", body: onlineBody() });
+    assert.equal(created.status, 201);
+    assert.equal(created.body.venue_id, null);
+    assert.equal(created.body.venue_name, null);
+    assert.equal(created.body.meeting_link, "https://meet.example.com/orbit-test");
+    assert.equal("timezone" in created.body, false);
+    state.onlineEventId = created.body.event_id;
+
+    const asVisitor = await call("GET", `/api/events/${state.onlineEventId}`);
+    assert.equal(asVisitor.status, 200);
+    assert.equal(asVisitor.body.meeting_link, null);
+    assert.equal((await call("GET", `/api/events/${state.onlineEventId}`, { as: "attendee" })).body.meeting_link, "https://meet.example.com/orbit-test");
+  });
+
+  it("lists the online event, but gives it no pin on the map", async () => {
+    const list = await call("GET", "/api/events?q=Online%20Integration");
+    assert.ok(list.body.some((event) => event.event_id === state.onlineEventId));
+
+    const pins = await call("GET", "/api/events/pins?q=Online%20Integration");
+    assert.equal(pins.body.length, 0);
+    assert.equal((await call("GET", "/api/events?state=TX&city=Nowhere")).body.some((event) => event.event_id === state.onlineEventId), false);
+  });
+
+  it("refuses an event with no venue and no meeting link, with both, or with a link that is not a web address", async () => {
+    const neither = await call("POST", "/api/events", { as: "host", body: onlineBody({ meeting_link: undefined }) });
+    assert.equal(neither.status, 400);
+    assert.ok(neither.body.details.venue_id);
+
+    const both = await call("POST", "/api/events", { as: "host", body: onlineBody({ venue_id: state.venueId }) });
+    assert.equal(both.status, 400);
+    assert.ok(both.body.details.meeting_link);
+
+    const notALink = await call("POST", "/api/events", { as: "host", body: onlineBody({ meeting_link: "my zoom room" }) });
+    assert.equal(notALink.status, 400);
+    assert.ok(notALink.body.details.meeting_link);
+  });
+
+  it("moves an event between online and a venue, and never leaves it with neither", async () => {
+    const path = `/api/events/${state.onlineEventId}`;
+
+    const toVenue = await call("PATCH", path, { as: "host", body: { venue_id: state.venueId, meeting_link: null } });
+    assert.equal(toVenue.status, 200);
+    assert.equal(toVenue.body.venue_id, state.venueId);
+    assert.equal(toVenue.body.meeting_link, null);
+    assert.match(toVenue.body.timezone, /\//);
+
+    const neither = await call("PATCH", path, { as: "host", body: { venue_id: null } });
+    assert.equal(neither.status, 400);
+
+    const backOnline = await call("PATCH", path, { as: "host", body: { venue_id: null, meeting_link: "https://meet.example.com/again" } });
+    assert.equal(backOnline.status, 200);
+    assert.equal(backOnline.body.venue_id, null);
+
+    assert.equal((await call("DELETE", path, { as: "host" })).status, 204);
   });
 });
 
@@ -347,6 +460,19 @@ describe("feed", () => {
 });
 
 describe("profiles", () => {
+  it("tells pages who is logged in, whether they are a host, and whether a GitHub user must finish onboarding", async () => {
+    const host = await call("GET", "/api/users/me", { as: "host" });
+    assert.deepEqual([host.status, host.body.is_host, host.body.user_id], [200, true, state.users.host.user_id]);
+    assert.equal(host.body.email, state.users.host.email);
+
+    assert.equal((await call("GET", "/api/users/me", { as: "attendee" })).body.is_host, false);
+
+    const visitor = await call("GET", "/api/users/me");
+    assert.deepEqual([visitor.status, visitor.body.needsOnboarding], [401, false]);
+    const newcomer = await call("GET", "/api/users/me", { as: "newcomer" });
+    assert.deepEqual([newcomer.status, newcomer.body.needsOnboarding], [401, true]);
+  });
+
   it("lets a person edit only their own allowed fields, and never their role", async () => {
     assert.equal((await call("PATCH", "/api/users/me", { body: { city: "Newtown" } })).status, 401);
 

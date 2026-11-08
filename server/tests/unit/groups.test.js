@@ -7,7 +7,7 @@ import { createFakePool } from "../helpers/fakePool.js";
 import { createRes, withQuietErrors } from "../helpers/http.js";
 
 // Made-up database rules, so these tests do not depend on any real list or length.
-const rules = { allowedWords: { "groups.category": ["Alpha", "Beta"] }, maxLengths: { "groups.group_name": 20 } };
+const rules = { allowedWords: {}, maxLengths: { "groups.group_name": 20 } };
 
 // Build a controller wired to a pretend database that gives these answers in order.
 const setup = (answers = []) => {
@@ -26,6 +26,33 @@ describe("getGroups", () => {
     assert.match(pool.calls[0].sql, /LEFT JOIN members/);
     assert.match(pool.calls[0].sql, /GROUP BY/);
     assert.deepEqual(pool.calls[0].values, ["Alpha", "Austin", "%code%", "%coffee%"]);
+  });
+
+  it("filters by the organizer's zip code", async () => {
+    const { pool, controller } = setup([{ rows: [] }]);
+    await controller.getGroups({ query: { zipcode: "78701" } }, createRes());
+
+    assert.match(pool.calls[0].sql, /LOWER\(users\.zipcode\) = LOWER\(\$1\)/);
+    assert.deepEqual(pool.calls[0].values, ["78701"]);
+  });
+
+  it("uses the date filters to find groups that have an event in that time, with one event meeting all of them", async () => {
+    const { pool, controller } = setup([{ rows: [] }]);
+    await controller.getGroups({ query: { from: "2027-01-01", to: "2027-01-31", upcoming: "true" } }, createRes());
+
+    assert.match(pool.calls[0].sql, /EXISTS \(SELECT 1 FROM events WHERE events\.group_id = groups\.group_id AND events\.start_time >= \$1 AND events\.start_time < \(\$2::date \+ 1\) AND events\.start_time >= localtimestamp\)/);
+    assert.deepEqual(pool.calls[0].values, ["2027-01-01", "2027-01-31"]);
+  });
+
+  it("answers 400 for a date the database refuses", async () => {
+    const pool = createFakePool([]);
+    pool.query = async () => {
+      throw Object.assign(new Error("bad date"), { code: "22007" });
+    };
+    const res = createRes();
+    await createGroupsController({ pool, loadRules: async () => rules }).getGroups({ query: { from: "not-a-date" } }, res);
+
+    assert.equal(res.statusCode, 400);
   });
 });
 
@@ -67,7 +94,7 @@ describe("createGroup", () => {
   it("rejects invalid input without opening a transaction", async () => {
     const { pool, controller } = setup();
     const res = createRes();
-    await controller.createGroup({ body: { group_name: "", category: "Gamma" }, user: fakeUsers.host }, res);
+    await controller.createGroup({ body: { group_name: "", category: "" }, user: fakeUsers.host }, res);
     assert.equal(res.statusCode, 400);
     assert.deepEqual(Object.keys(res.body.details).sort(), ["category", "group_name"]);
     assert.equal(pool.connects, 0);
@@ -107,14 +134,14 @@ describe("updateGroup", () => {
     await controller.updateGroup({ params: { groupId: "3" }, body: { category: "Beta" } }, res);
 
     assert.equal(res.statusCode, 200);
-    assert.match(pool.calls[0].sql, /UPDATE groups SET category = \$1 WHERE group_id = \$2/);
+    assert.match(pool.calls[0].sql, /UPDATE groups SET category = COALESCE\(\(SELECT kept\.category FROM groups AS kept WHERE LOWER\(kept\.category\) = LOWER\(\$1\) LIMIT 1\), \$1\) WHERE group_id = \$2/);
     assert.deepEqual(pool.calls[0].values, ["Beta", "3"]);
   });
 
   it("rejects an invalid or empty edit before touching the database", async () => {
     const invalid = setup();
     const invalidRes = createRes();
-    await invalid.controller.updateGroup({ params: { groupId: "3" }, body: { category: "Gamma" } }, invalidRes);
+    await invalid.controller.updateGroup({ params: { groupId: "3" }, body: { category: "  " } }, invalidRes);
     assert.equal(invalidRes.statusCode, 400);
 
     const empty = setup();

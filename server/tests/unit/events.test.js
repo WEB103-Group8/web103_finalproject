@@ -63,6 +63,28 @@ describe("getEvents", () => {
   });
 });
 
+describe("event filters", () => {
+  it("compare words without caring about capital letters, but ids exactly", async () => {
+    const { pool, controller } = setup([{ rows: [] }]);
+    await controller.getEvents({ query: { city: "austin", zipcode: "78701", category: "food", group_id: "3" }, user: null }, createRes());
+
+    assert.match(pool.calls[0].sql, /LOWER\(venues\.postal_code\) = LOWER\(\$\d\)/);
+
+    assert.match(pool.calls[0].sql, /LOWER\(venues\.city\) = LOWER\(\$3\)/);
+    assert.match(pool.calls[0].sql, /LOWER\(groups\.category\) = LOWER\(\$\d\)/);
+    assert.match(pool.calls[0].sql, /events\.group_id = \$\d/);
+  });
+});
+
+describe("event details", () => {
+  it("tell the page whether the visitor's own answer means going, so the page never needs the word", async () => {
+    const { pool, controller } = setup([{ rows: [{ event_id: 1 }] }]);
+    await controller.getEvents({ query: {}, user: null }, createRes());
+
+    assert.match(pool.calls[0].sql, /mine\.rsvp_status = \$1 FROM rsvps.*\), false\) AS is_attending/s);
+  });
+});
+
 describe("getEventPins", () => {
   it("returns one small record per event, filtered like the list, with nothing personal", async () => {
     const { pool, controller } = setup([{ rows: [{ event_id: 1 }] }]);
@@ -154,8 +176,8 @@ describe("createEvent", () => {
 
     assert.equal(res.statusCode, 201);
     assert.equal(res.body.event_id, 7);
-    // Group, venue, trimmed title and description, start, end, capacity, and a blank picture saved as nothing.
-    assert.deepEqual(pool.calls[2].values, [3, 4, "Trivia Night", "Fun.", "2026-12-01T18:30:00", "2026-12-01T20:00:00", 40, null]);
+    // Group, venue, no meeting link, trimmed title and description, start, end, capacity, and a blank picture saved as nothing.
+    assert.deepEqual(pool.calls[2].values, [3, 4, null, "Trivia Night", "Fun.", "2026-12-01T18:30:00", "2026-12-01T20:00:00", 40, null]);
     assert.match(pool.calls[3].sql, /JOIN venues/);
   });
 
@@ -174,7 +196,7 @@ describe("createEvent", () => {
 
 describe("updateEvent", () => {
   // The event as it is now: December 1st at 18:30 for 90 minutes, in group 3.
-  const existing = { rows: [{ date: "2026-12-01", time: "18:30", duration_minutes: 90, group_id: 3 }] };
+  const existing = { rows: [{ date: "2026-12-01", time: "18:30", duration_minutes: 90, group_id: 3, venue_id: 4, meeting_link: null }] };
   const joined = { rows: [{ event_id: 9 }] };
   const host = fakeUsers.host;
 
@@ -222,7 +244,7 @@ describe("updateEvent", () => {
     assert.match(pastRes.body.details.date, /future/);
 
     // The event is on November 1st, already over, but only its length is changing.
-    const started = { rows: [{ date: "2026-11-01", time: "18:30", duration_minutes: 90, group_id: 3 }] };
+    const started = { rows: [{ date: "2026-11-01", time: "18:30", duration_minutes: 90, group_id: 3, venue_id: 4, meeting_link: null }] };
     const { pool, controller } = setup([started, {}, joined]);
     const res = createRes();
     await controller.updateEvent({ params: { eventId: "9" }, body: { duration_minutes: 120 }, user: host }, res);
@@ -274,5 +296,124 @@ describe("getEventOrganizerId", () => {
     const bad = setup();
     assert.equal(await bad.controller.getEventOrganizerId({ params: { eventId: "x" } }), null);
     assert.equal(bad.pool.calls.length, 0);
+  });
+});
+
+describe("time zones on events and pins", () => {
+  const austin = { event_id: 1, latitude: 30.2672, longitude: -97.7431 };
+
+  it("gives every event in the list the time zone of its venue", async () => {
+    const { controller } = setup([{ rows: [austin, { event_id: 2, latitude: 21.3069, longitude: -157.8583 }] }]);
+    const res = createRes();
+    await controller.getEvents({ query: {}, user: null }, res);
+
+    assert.deepEqual(res.body.map((event) => event.timezone), ["America/Chicago", "Pacific/Honolulu"]);
+  });
+
+  it("gives one event the time zone of its venue", async () => {
+    const { controller } = setup([{ rows: [austin] }]);
+    const res = createRes();
+    await controller.getEventById({ params: { eventId: "1" }, user: null }, res);
+
+    assert.equal(res.body.timezone, "America/Chicago");
+  });
+
+  it("gives every map pin the time zone of its venue, for the tooltip", async () => {
+    const { controller } = setup([{ rows: [austin] }]);
+    const res = createRes();
+    await controller.getEventPins({ query: {} }, res);
+
+    assert.equal(res.body[0].timezone, "America/Chicago");
+  });
+});
+
+describe("online events", () => {
+  const online = { ...body, venue_id: undefined, meeting_link: " https://meet.example.com/abc " };
+  const { venue_id, ...withoutVenue } = body;
+  void venue_id;
+
+  it("saves an online event with its meeting link and no venue, without looking for a venue", async () => {
+    const { pool, controller } = setup([ownGroup, { rows: [{ event_id: 8 }] }, { rows: [{ event_id: 8, venue_id: null }] }]);
+    const res = createRes();
+    await controller.createEvent({ body: { ...withoutVenue, meeting_link: " https://meet.example.com/abc " }, user: fakeUsers.host }, res);
+
+    assert.equal(res.statusCode, 201);
+    assert.equal(pool.calls.some((call) => call.sql.includes("FROM venues WHERE")), false);
+    assert.deepEqual(pool.calls[1].values.slice(0, 3), [3, null, "https://meet.example.com/abc"]);
+    assert.match(pool.calls[1].sql, /INSERT INTO events \(group_id, venue_id, meeting_link,/);
+  });
+
+  it("also accepts a venue of null for an online event", async () => {
+    const { controller } = setup([ownGroup, { rows: [{ event_id: 8 }] }, { rows: [{ event_id: 8 }] }]);
+    const res = createRes();
+    await controller.createEvent({ body: { ...online, venue_id: null }, user: fakeUsers.host }, res);
+
+    assert.equal(res.statusCode, 201);
+  });
+
+  it("refuses an event with neither a venue nor a meeting link, and one with both, saving nothing", async () => {
+    const neither = setup();
+    const neitherRes = createRes();
+    await neither.controller.createEvent({ body: withoutVenue, user: fakeUsers.host }, neitherRes);
+    assert.match(neitherRes.body.details.venue_id, /venue or enter a meeting link/);
+
+    const both = setup();
+    const bothRes = createRes();
+    await both.controller.createEvent({ body: { ...body, meeting_link: "https://meet.example.com/abc" }, user: fakeUsers.host }, bothRes);
+    assert.match(bothRes.body.details.meeting_link, /not both/);
+    assert.equal(neither.pool.calls.length + both.pool.calls.length, 0);
+  });
+
+  it("refuses a meeting link that is not a web address", async () => {
+    const { pool, controller } = setup();
+    const res = createRes();
+    await controller.createEvent({ body: { ...withoutVenue, meeting_link: "my zoom room" }, user: fakeUsers.host }, res);
+
+    assert.equal(res.statusCode, 400);
+    assert.match(res.body.details.meeting_link, /web address/);
+    assert.equal(pool.calls.length, 0);
+  });
+
+  it("moves an event from a venue to online by sending no venue and a meeting link", async () => {
+    const existing = { rows: [{ date: "2026-12-01", time: "18:30", duration_minutes: 90, group_id: 3, venue_id: 4, meeting_link: null }] };
+    const { pool, controller } = setup([existing, {}, { rows: [{ event_id: 9 }] }]);
+    const res = createRes();
+    await controller.updateEvent({ params: { eventId: "9" }, body: { venue_id: null, meeting_link: "https://meet.example.com/abc" }, user: fakeUsers.host }, res);
+
+    assert.equal(res.statusCode, 200);
+    assert.match(pool.calls[1].sql, /SET venue_id = \$1, meeting_link = \$2 WHERE event_id = \$3/);
+    assert.deepEqual(pool.calls[1].values, [null, "https://meet.example.com/abc", "9"]);
+  });
+
+  it("moves an online event to a venue by sending a venue and no meeting link", async () => {
+    const existing = { rows: [{ date: "2026-12-01", time: "18:30", duration_minutes: 90, group_id: 3, venue_id: null, meeting_link: "https://meet.example.com/abc" }] };
+    const { pool, controller } = setup([existing, venue, {}, { rows: [{ event_id: 9 }] }]);
+    const res = createRes();
+    await controller.updateEvent({ params: { eventId: "9" }, body: { venue_id: 4, meeting_link: null }, user: fakeUsers.host }, res);
+
+    assert.equal(res.statusCode, 200);
+    assert.deepEqual(pool.calls[2].values, [4, null, "9"]);
+  });
+
+  it("refuses an edit that would leave an event with neither a venue nor a meeting link, or with both", async () => {
+    const atVenue = { rows: [{ date: "2026-12-01", time: "18:30", duration_minutes: 90, group_id: 3, venue_id: 4, meeting_link: null }] };
+
+    const neither = setup([atVenue]);
+    const neitherRes = createRes();
+    await neither.controller.updateEvent({ params: { eventId: "9" }, body: { venue_id: null }, user: fakeUsers.host }, neitherRes);
+    assert.match(neitherRes.body.details.venue_id, /venue or enter a meeting link/);
+
+    const both = setup([atVenue]);
+    const bothRes = createRes();
+    await both.controller.updateEvent({ params: { eventId: "9" }, body: { meeting_link: "https://meet.example.com/abc" }, user: fakeUsers.host }, bothRes);
+    assert.match(bothRes.body.details.meeting_link, /not both/);
+  });
+
+  it("asks for the events with a left join, so an event without a venue is still listed, and hides the meeting link from visitors", async () => {
+    const { pool, controller } = setup([{ rows: [] }]);
+    await controller.getEvents({ query: {}, user: null }, createRes());
+
+    assert.match(pool.calls[0].sql, /LEFT JOIN venues/);
+    assert.match(pool.calls[0].sql, /CASE WHEN \$2::bigint IS NOT NULL THEN events\.meeting_link END AS meeting_link/);
   });
 });
