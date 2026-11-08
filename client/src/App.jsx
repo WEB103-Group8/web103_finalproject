@@ -1,17 +1,8 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
-import Home from './pages/Home'
+import OrbitRoutes from './OrbitRoutes'
 import Login from './pages/Login'
 import Onboarding from './pages/Onboarding'
-import Profile from './pages/Profile'
-
-function ProtectedRoute({ children }) {
-  const { user, loading } = useAuth()
-  if (loading) return null
-  if (!user) return <Navigate to="/login" replace />
-  if (user.isNewUser) return <Navigate to="/onboarding" replace />
-  return children
-}
 
 function OnboardingRoute({ children }) {
   const { user, loading } = useAuth()
@@ -26,6 +17,7 @@ function App() {
     <BrowserRouter>
       <AuthProvider>
         <Routes>
+          {OrbitRoutes()}
           <Route path="/login" element={<Login />} />
           <Route
             path="/onboarding"
@@ -33,22 +25,6 @@ function App() {
               <OnboardingRoute>
                 <Onboarding />
               </OnboardingRoute>
-            }
-          />
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <Home />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
             }
           />
         </Routes>

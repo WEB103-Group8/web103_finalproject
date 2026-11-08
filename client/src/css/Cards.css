@@ -1,0 +1,44 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  background: #fff;
+  color: inherit;
+  text-align: left;
+  text-decoration: none;
+}
+
+.card img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+.card-body {
+  padding: 12px 16px;
+}
+
+.card-body h3 {
+  margin: 0 0 8px;
+}
+
+.card-body p {
+  margin: 4px 0;
+  color: #555;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr));
+  gap: 16px;
+}
+
+.card-grid > div {
+  display: flex;
+}
+
+.card-grid > div > .card {
+  flex: 1;
+}

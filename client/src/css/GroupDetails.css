@@ -1,0 +1,13 @@
+.group-details {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px 16px;
+  text-align: left;
+}
+
+.group-cover {
+  width: 100%;
+  max-height: 320px;
+  border-radius: 12px;
+  object-fit: cover;
+}

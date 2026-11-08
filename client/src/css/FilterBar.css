@@ -1,0 +1,76 @@
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+  margin-bottom: 16px;
+  text-align: left;
+}
+
+.filter-bar label {
+  display: flex;
+  flex: 1 1 140px;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.9rem;
+}
+
+.filter-bar label.wide {
+  flex: 2 1 260px;
+}
+
+.filter-bar input,
+.filter-bar select {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* "Upcoming only" and "Items per page" stay together on one line */
+.filter-inline {
+  display: flex;
+  flex: 1 1 280px;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.filter-inline label {
+  flex: 1 1 auto;
+}
+
+.filter-inline label.checkbox {
+  flex: 0 0 auto;
+  flex-direction: row;
+  align-items: center;
+  padding-bottom: 8px;
+  white-space: nowrap;
+}
+
+.filter-inline label.checkbox input {
+  width: auto;
+}
+
+.filter-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+@media (max-width: 640px) {
+  .filter-bar label,
+  .filter-bar label.wide,
+  .filter-inline {
+    flex-basis: 100%;
+  }
+
+  .filter-inline label {
+    flex-basis: auto;
+  }
+
+  .filter-buttons {
+    width: 100%;
+  }
+
+  .filter-buttons button {
+    flex: 1;
+  }
+}

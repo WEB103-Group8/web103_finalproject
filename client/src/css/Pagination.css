@@ -1,0 +1,19 @@
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 24px 0;
+}
+
+.pagination-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pagination button[aria-current='page'] {
+  background: #1f1f1f;
+  color: #fff;
+}

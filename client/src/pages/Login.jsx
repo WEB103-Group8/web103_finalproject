@@ -21,7 +21,7 @@ export default function Login() {
         </a>
       </nav>
       <main style={styles.main}>
-        <p>homepage will go here</p>
+        <p>Discover local events and groups with Orbit. Sign in with GitHub to join in.</p>
       </main>
     </div>
   )

@@ -1,0 +1,10 @@
+.venue-picker {
+  margin-bottom: 16px;
+  padding: 12px;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+}
+
+.venue-found {
+  margin: 12px 0;
+}

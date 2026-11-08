@@ -1,0 +1,17 @@
+.event-map {
+  position: relative;
+  height: 70vh;
+  min-height: 360px;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.event-map-canvas {
+  height: 100%;
+  width: 100%;
+}
+
+/* the pin of the event that is hovered or opened */
+.pin-active {
+  filter: hue-rotate(150deg) saturate(2.5);
+}

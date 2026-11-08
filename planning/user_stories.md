@@ -1,17 +1,13 @@
 # User Stories
 
-Reference the Writing User Stories final project guide in the course portal for more information about how to complete each of the sections below.
+These are the original planning stories. Comments, likes, and saved events/collections are ideas only; they are not implemented in Orbit.
 
 ## Outline User Roles
 
-[👉🏾👉🏾👉🏾 Include at least at least 1, but no more than 3, user roles.]
-
 1. Hosts/Organizers: Users who want to find attendees for their events, gauge public interest, find community, or share existing events to gather a larger audience/attendee list.
-2. Attendees: Users who want to find community, find events to attend, and RVSP to exclusive events.
+2. Attendees: Users who want to find community, find events to attend, and RSVP to exclusive events.
 
-## Draft User Stories
-
-[👉🏾👉🏾👉🏾 Include at least at least 10 user stories in this format:]
+## User Stories
 
 1. As a host, I want to create an account and log in, so that only I can manage the events I post.
 2. As a host, I want to post a new event with a title, date, location, and capacity, so that attendees can find it and RSVP.

@@ -1,10 +1,9 @@
-# Wireframes
+# Original Wireframes
 
-Reference the Creating an Entity Relationship Diagram final project guide in the course portal for more information about how to complete this deliverable.
+These wireframes record the initial design and may differ from the implemented pages.
 
 ## List of Pages
 
-[👉🏾👉🏾👉🏾 List the pages you expect to have in your app, with a ⭐ next to pages you have wireframed]
 ⭐ Landing  
 ⭐ Log In  
 ⭐ Sign Up  
