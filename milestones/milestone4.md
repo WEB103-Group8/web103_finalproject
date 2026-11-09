@@ -8,7 +8,7 @@ This unit, be sure to complete all tasks listed below. To complete a task, place
 
 - [X] Update the completion percentage of each GitHub Milestone. The milestone for this unit (Milestone 4 - Unit 8) should be 100% completed when you submit for full points.
 - [X] In `readme.md`, check off the features you have completed in this unit by adding a ✅ emoji in front of the feature's name.
-  - [ ] Under each feature you have completed, include a GIF showing feature functionality.
+  - [X] Under each feature you have completed, include a GIF showing feature functionality.
 - [x] In this document, complete all five questions in the **Reflection** section below.
 
 ## Reflection
