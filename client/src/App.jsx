@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './context/AuthContext'
 import OrbitRoutes from './OrbitRoutes'
 import Login from './pages/Login'
 import Onboarding from './pages/Onboarding'
+import Register from './pages/Register'
 
 function OnboardingRoute({ children }) {
   const { user, loading } = useAuth()
@@ -19,6 +20,7 @@ function App() {
         <Routes>
           {OrbitRoutes()}
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
           <Route
             path="/onboarding"
             element={

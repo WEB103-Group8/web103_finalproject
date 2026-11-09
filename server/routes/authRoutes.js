@@ -1,8 +1,11 @@
 import express from 'express'
 import passport from '../config/passport.js'
-import { getMe, handleCallback, logout } from '../controllers/auth.js'
+import { getMe, handleCallback, loginLocal, logout, registerLocal } from '../controllers/auth.js'
 
 const router = express.Router()
+
+router.post('/register', registerLocal)
+router.post('/login', loginLocal)
 
 router.get('/github', passport.authenticate('github', { scope: ['user:email'] }))
 

@@ -8,6 +8,7 @@ passport.use(
       clientID: process.env.GITHUB_CLIENT_ID,
       clientSecret: process.env.GITHUB_CLIENT_SECRET,
       callbackURL: process.env.CALLBACK_URL || 'http://localhost:5173/auth/github/callback',
+      userAgent: 'orbit-app',
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
@@ -20,12 +21,18 @@ passport.use(
           return done(null, existing.rows[0])
         }
 
+        const primaryEmail =
+          profile.emails?.find(e => e.primary && e.verified)?.value ||
+          profile.emails?.find(e => e.primary)?.value ||
+          profile.emails?.[0]?.value ||
+          null
+
         // New user — store GitHub profile in session, don't insert yet
         return done(null, {
           isNewUser: true,
           github_id: String(profile.id),
           github_username: profile.username,
-          email: profile.emails?.[0]?.value || null,
+          email: primaryEmail,
           avatar_url: profile.photos?.[0]?.value || null,
         })
       } catch (err) {
