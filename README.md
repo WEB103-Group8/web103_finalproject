@@ -66,17 +66,28 @@ Every create, join, and attend shows a short confirmation message, and anything 
 
 The home page shows a map of upcoming events with one small pin per event. Hovering over a pin shows the event's title, time, and category, and clicking it opens that event. The Events page shows every event as a grid of cards with a start and end time, the place, and how many people are going, split into pages with a choice of 10 to 50 items per page. Groups have their own grid and pages, and each event and group has a details page that anyone can open without logging in. Times are shown with the venue's time zone (for example 6:30 PM CST), and the event page has a live countdown to the exact start time, whichever time zone you are in.
 
+<img width="2048" height="1152" alt="events" src="https://github.com/user-attachments/assets/a34886ee-a8fe-471f-ab55-cb800991b153" />
+
 ### ✅ Search and Filter Function
 
 The same filter section appears on the home page, the Events page, and the Groups page: search by event or group name, city, state, ZIP code, and category, plus a start and end date and an "upcoming only" switch. Suggestions drop down as you type, but any text can still be searched. Filters, the page, and the page size are kept in the address, so a search can be shared and the back button works.
+
+
+
 
 ### ✅ RSVP Events
 
 Logged-in users can attend an event or say they are not attending, and join or leave groups. Hosts are not offered to attend the events they host. The attendee count updates right away and is put back if the server refuses (for example, when the event just filled up). Events have a capacity, so the last place can never be taken by two people at once. Visitors see a Join button that takes them to log in. The host of an event also sees the list of who answered.
 
+
+
+
 ### ✅ Profiles
 
 Every person has a profile page showing their name, location, the events they attend or host, and the groups they joined or organize. Your own profile page shows your email and a form to edit your name, location, and photo. People who sign in with GitHub are asked to complete their profile details. Your **My events** (Hosted or Attending) and **My groups** (Organized or Joined) are on the home page, below the map, and on the **My Collection** page in the top bar, with the lists you host and organize first.
+
+
+
 
 Comments, likes, and saved events/collections are not implemented.
 
