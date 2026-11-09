@@ -68,18 +68,20 @@ The home page shows a map of upcoming events with one small pin per event. Hover
 
 <img width="2048" height="1152" alt="events" src="https://github.com/user-attachments/assets/a34886ee-a8fe-471f-ab55-cb800991b153" />
 
+
 ### ✅ Search and Filter Function
 
 The same filter section appears on the home page, the Events page, and the Groups page: search by event or group name, city, state, ZIP code, and category, plus a start and end date and an "upcoming only" switch. Suggestions drop down as you type, but any text can still be searched. Filters, the page, and the page size are kept in the address, so a search can be shared and the back button works.
 
 
+<img width="2048" height="1152" alt="search-and-filter" src="https://github.com/user-attachments/assets/0cb235c6-7af3-4fb6-8b51-41c7372426fc" />
 
 
 ### ✅ RSVP Events
 
 Logged-in users can attend an event or say they are not attending, and join or leave groups. Hosts are not offered to attend the events they host. The attendee count updates right away and is put back if the server refuses (for example, when the event just filled up). Events have a capacity, so the last place can never be taken by two people at once. Visitors see a Join button that takes them to log in. The host of an event also sees the list of who answered.
 
-
+<img width="2048" height="1152" alt="rsvp" src="https://github.com/user-attachments/assets/46db6af8-c689-4318-a5e4-80e539e15117" />
 
 
 ### ✅ Profiles
@@ -87,6 +89,7 @@ Logged-in users can attend an event or say they are not attending, and join or l
 Every person has a profile page showing their name, location, the events they attend or host, and the groups they joined or organize. Your own profile page shows your email and a form to edit your name, location, and photo. People who sign in with GitHub are asked to complete their profile details. Your **My events** (Hosted or Attending) and **My groups** (Organized or Joined) are on the home page, below the map, and on the **My Collection** page in the top bar, with the lists you host and organize first.
 
 
+<img width="1024" height="576" alt="profile" src="https://github.com/user-attachments/assets/08d0ea38-3e2f-46ad-86c0-67fc39a2a833" />
 
 
 Comments, likes, and saved events/collections are not implemented.
