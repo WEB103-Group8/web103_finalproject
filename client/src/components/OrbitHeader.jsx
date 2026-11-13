@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useSession } from '../context/SessionContext'
 import '../css/OrbitHeader.css'
+import orbitLogo from '../assets/orbit-logo.png'
 
 // the top bar: its links depend on whether the person is a visitor, an attendee or a host
 const OrbitHeader = () => {
@@ -42,17 +43,16 @@ const OrbitHeader = () => {
 
   return (
     <header className="orbit-header">
-      <Link className="orbit-logo" to="/">
-        ORBIT
+
+      <Link className="orbit-logo" to="/" aria-label="Orbit home">
+        <img src={orbitLogo} alt="Orbit" />
       </Link>
 
       <nav className="orbit-nav" aria-label="Main">
-        <NavLink to="/" end>
-          Home
-        </NavLink>
-        <NavLink to="/events">Events</NavLink>
-        <NavLink to="/groups">Groups</NavLink>
-        {user && <NavLink to="/collection">My Collection</NavLink>}
+        <NavLink className="orbit-nav-link" to="/" end>Home</NavLink>
+        <NavLink className="orbit-nav-link" to="/events">Events</NavLink>
+        <NavLink className="orbit-nav-link" to="/groups">Groups</NavLink>
+        {user && <NavLink className="orbit-nav-link" to="/collection">My Collection</NavLink>}
       </nav>
 
       {/* nothing is shown on the right until we know who is logged in, so a logged-in person never sees the visitor buttons for a moment */}
@@ -61,7 +61,8 @@ const OrbitHeader = () => {
           <>
             {/* visitors get the same + button, which sends them to log in first */}
             {!user && (
-              <Link className="orbit-create orbit-create-link" to="/login" aria-label="Create">
+              <Link
+                className="orbit-create" to="/login" aria-label="Create">
                 +
               </Link>
             )}

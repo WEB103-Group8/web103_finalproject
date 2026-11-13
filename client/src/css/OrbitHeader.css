@@ -1,116 +1,283 @@
+/* imported header styles */
+
 .orbit-header {
   display: flex;
   align-items: center;
   gap: 24px;
   padding: 12px 24px;
-  border-bottom: 1px solid #e5e5e5;
-  background: #fff;
+  border-bottom: 1px solid #4b006e;
+  background: #4b006e;
   text-align: left;
 }
 
+/* imported logo styles */
+
 .orbit-logo {
-  font-weight: 800;
-  letter-spacing: 0.15em;
+  display: flex;
+  align-items: center;
   text-decoration: none;
+  transition: transform 0.2s ease;
 }
+
+.orbit-logo img {
+  width: 60px;
+  height: auto;
+  display: block;
+}
+
+
+/* nav */
 
 .orbit-nav {
   display: flex;
+  align-items: center;
   gap: 16px;
   flex: 1;
 }
 
 .orbit-nav a.active {
   font-weight: 700;
+  color:#fff
 }
+
+.orbit-nav a:hover {
+  color: #FBB550;
+}
+
+.orbit-nav-link {
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.orbit-nav-link:hover {
+  color: #fbb550;
+}
+
+.orbit-nav-link.active {
+  color: #fff;
+  font-weight: 700;
+}
+
 
 .orbit-actions {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
 }
 
-.orbit-button {
-  padding: 8px 16px;
-  border-radius: 999px;
-  background: #1f1f1f;
-  color: #fff;
-  text-decoration: none;
-}
+/* login button */
 
 .orbit-login {
-  padding: 8px 16px;
-  border: 1px solid #1f1f1f;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 76px;
+  height: 40px;
+  padding: 0 18px;
+  box-sizing: border-box;
+
+  border: 1px solid #fff;
   border-radius: 999px;
-  color: inherit;
+
+  background: #fff;
+  color: #4b006e;
+
+  font-size: 0.95rem;
+  font-weight: 700;
   text-decoration: none;
+
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
+
+.orbit-login:hover {
+  background: #fbb550;
+  border-color: #fbb550;
+  color: #4b006e;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18);
+}
+
 
 .orbit-menu {
   position: relative;
 }
 
-/* the + button for visitors is a link, drawn like the round + button of hosts */
+
+/* Shared style for both signed-out and signed-in create buttons */
+.orbit-create,
 .orbit-create-link {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  border: 2px solid #fff;
   border-radius: 50%;
-  background: #1f1f1f;
-  color: #fff;
-  font-size: 1.4rem;
+  background: #fff;
+  color: #4b006e;
+  font-family: var(--sans);
+  font-size: 1.45rem;
+  font-weight: 600;
   line-height: 1;
   text-decoration: none;
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-.orbit-menu > button {
-  width: 36px;
-  height: 36px;
+.orbit-create:hover,
+.orbit-create-link:hover {
+  background: #fbb550;
+  border-color: #fbb550;
+  color: #4b006e;
+  transform: translateY(-2px);
+  box-shadow:
+    0 4px 10px rgba(0, 0, 0, 0.18);
+}
+
+/* Keyboard focus */
+.orbit-create:focus-visible,
+.orbit-create-link:focus-visible {
+  outline: 3px solid #fbb550;
+  outline-offset: 3px;
+}
+
+
+/* avatar styles */
+
+.orbit-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 40px;
+  height: 40px;
   padding: 0;
+  margin: 0;
+
+  box-sizing: border-box;
   overflow: hidden;
+
+  border: 2px solid #fff;
   border-radius: 50%;
+
+  background: #fbb550;
+  color: #4b006e;
+
+  font-family: var(--sans);
+  font-size: 1rem;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  vertical-align: middle;
+
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-/* the + button hosts use to create something */
-.orbit-menu > .orbit-create {
-  background: #1f1f1f;
-  color: #fff;
-  font-size: 1.4rem;
-  line-height: 1;
+.orbit-avatar:hover {
+  border-color: #fbb550;
+  background: #fff;
+  color: #4b006e;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18);
 }
 
-.orbit-menu > button img {
+.orbit-avatar img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
 }
+
+/* dropdown create menu */
 
 .orbit-menu-list {
   position: absolute;
   right: 0;
-  top: 44px;
+  top: 48px;
   z-index: 1000;
+
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  min-width: 160px;
-  padding: 12px;
-  border: 1px solid #e5e5e5;
-  border-radius: 8px;
+  gap: 6px;
+
+  min-width: 170px;
+  padding: 8px;
+
+  border: 1px solid #e5e4e7;
+  border-radius: 12px;
+
   background: #fff;
+
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.12),
+    0 4px 6px -2px rgba(0, 0, 0, 0.06);
 }
 
-@media (max-width: 640px) {
-  .orbit-header {
-    flex-wrap: wrap;
-    gap: 12px;
-    padding: 12px 16px;
-  }
+.orbit-menu-list a,
+.orbit-menu-list button {
+  display: block;
 
-  .orbit-nav {
-    order: 3;
-    flex-basis: 100%;
-  }
+  width: 100%;
+  padding: 9px 12px;
+  box-sizing: border-box;
+
+  border: none;
+  border-radius: 8px;
+
+  background: transparent;
+  color: #2b1633;
+
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  font-weight: 600;
+
+  text-align: left;
+  text-decoration: none;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.orbit-menu-list a:hover,
+.orbit-menu-list button:hover {
+  background: #f6f1f8;
+  color: #4b006e;
+}
+
+/* keyboard focus styles */
+
+.orbit-login:focus-visible,
+.orbit-create-link:focus-visible,
+.orbit-create:focus-visible,
+.orbit-avatar:focus-visible,
+.orbit-nav-link:focus-visible {
+  outline: 3px solid #fbb550;
+  outline-offset: 3px;
 }

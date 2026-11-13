@@ -1,0 +1,313 @@
+/* ORBIT AUTH PAGES Login + Register*/
+
+.auth-page {
+  min-height: 100vh;
+  background: #fafafa;
+  color: #2b1633;
+  font-family: var(--sans);
+}
+
+/*  AUTH NAVIGATION */
+
+.auth-nav {
+  display: flex;
+  align-items: center;
+  padding: 12px 24px;
+  gap: 16px;
+  background: #4b006e;
+  border-bottom: 1px solid #4b006e;
+}
+
+.auth-brand {
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  text-decoration: none;
+}
+
+.auth-brand:hover {
+  color: #fbb550;
+}
+
+/* MAIN CONTENT */
+
+.auth-main {
+  min-height: calc(100vh - 65px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  box-sizing: border-box;
+}
+
+/* AUTH CARD */
+
+.auth-card {
+  width: 100%;
+  max-width: 440px;
+  padding: 40px;
+  box-sizing: border-box;
+
+  background: #fff;
+  border: 1px solid #e5e4e7;
+  border-radius: 16px;
+
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.08),
+    0 4px 6px -2px rgba(0, 0, 0, 0.04);
+}
+
+/* HEADING */
+
+.auth-heading {
+  margin-bottom: 28px;
+}
+
+.auth-eyebrow {
+  display: block;
+  margin-bottom: 8px;
+
+  color: #d81b68;
+
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+}
+
+.auth-heading h1 {
+  margin: 0 0 8px;
+
+  color: #4b006e;
+  font-family: var(--heading);
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.6px;
+  line-height: 1.2;
+}
+
+.auth-heading p {
+  margin: 0;
+
+  color: #5f5863;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* FORM*/
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.auth-label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+
+  color: #2b1633;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.auth-input {
+  width: 100%;
+  padding: 11px 13px;
+  box-sizing: border-box;
+
+  border: 1px solid #b9b3bd;
+  border-radius: 8px;
+
+  background: #fff;
+  color: #2b1633;
+
+  font-family: var(--sans);
+  font-size: 1rem;
+  font-weight: 400;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.auth-input::placeholder {
+  color: #716b75;
+}
+
+.auth-input:hover {
+  border-color: #7a7180;
+}
+
+.auth-input:focus {
+  outline: none;
+  border-color: #4b006e;
+  box-shadow: 0 0 0 3px rgba(75, 0, 110, 0.15);
+}
+
+/* SELECT */
+
+select.auth-input {
+  cursor: pointer;
+}
+
+/* ERROR */
+
+.auth-error {
+  margin: 0;
+  padding: 10px 12px;
+
+  border-radius: 8px;
+
+  background: #fff0f3;
+  color: #a0184e;
+
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+/* PRIMARY BUTTON */
+
+.auth-button {
+  width: 100%;
+  margin-top: 4px;
+  padding: 12px 20px;
+
+  border: none;
+  border-radius: 999px;
+
+  background: #4b006e;
+  color: #fff;
+
+  font-family: var(--sans);
+  font-size: 1rem;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.auth-button:hover:not(:disabled) {
+  background: #d81b68;
+  transform: translateY(-1px);
+}
+
+.auth-button:focus-visible {
+  outline: 3px solid #fbb550;
+  outline-offset: 2px;
+}
+
+.auth-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* DIVIDER */
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 24px 0;
+}
+
+.auth-divider-line {
+  flex: 1;
+  height: 1px;
+  background: #e5e4e7;
+}
+
+.auth-divider-text {
+  color: #716b75;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+/* GITHUB BUTTON */
+
+.auth-github {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  padding: 11px 20px;
+
+  background: #fff;
+  color: #2b1633;
+
+  border: 1px solid #b9b3bd;
+  border-radius: 999px;
+
+  font-family: var(--sans);
+  font-size: 1rem;
+  font-weight: 600;
+
+  text-decoration: none;
+
+  box-sizing: border-box;
+
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.auth-github:hover {
+  background: #f6f1f8;
+  border-color: #4b006e;
+  transform: translateY(-1px);
+}
+
+.auth-github:focus-visible {
+  outline: 3px solid #fbb550;
+  outline-offset: 2px;
+}
+
+.auth-github svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* FOOTER */
+
+.auth-footer {
+  margin: 24px 0 0;
+
+  text-align: center;
+
+  color: #5f5863;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.auth-link {
+  color: #4b006e;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.auth-link:hover {
+  color: #d81b68;
+}
+
+/*  LOGO */
+
+.orbit-logo {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.orbit-logo img {
+  width: 60px;
+  height: auto;
+  display: block;
+}
