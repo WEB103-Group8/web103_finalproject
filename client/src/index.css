@@ -1,63 +1,119 @@
+/*  inter font for everything */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
+/* Font for Logo */
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Tilt+Neon&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Gugi&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=MuseoModerno:ital,wght@0,100..900;1,100..900&display=swap');
+
+
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
-
-
+  /* Typography */
   --sans: 'Inter', sans-serif;
   --heading: 'Inter', sans-serif;
+  --logo: 'Gugi', sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
+  /* Light mode */
+  --text: #5f5863;
+  --text-h: #2b1633;
+  --bg: #fafafa;
+  --surface: #ffffff;
+  --border: #e5e4e7;
+
+  /* Orbit brand colors */
+  --primary: #4b006e;
+  --secondary: #5f0f4e;
+  --accent: #fbb550;
+  --magenta: #d81b68;
+  --blue: #3f7f9f;
+
+  /* Form / code backgrounds */
+  --code-bg: #f4f3ec;
+  --accent-bg: rgba(75, 0, 110, 0.08);
+  --accent-border: rgba(75, 0, 110, 0.35);
+
+  /* Shadows */
+  --shadow:
+    rgba(0, 0, 0, 0.08) 0 10px 15px -3px,
+    rgba(0, 0, 0, 0.04) 0 4px 6px -2px;
+
+  /* Browser UI */
+  color-scheme: light;
+
+  /* Base typography */
   font: 18px/145% var(--sans);
   letter-spacing: 0.18px;
-  color-scheme: light dark;
   color: var(--text);
   background: var(--bg);
+
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  @media (max-width: 1024px) {
+
+}
+
+
+/* dark theme style */
+:root[data-theme='dark'] {
+  /* Dark backgrounds */
+  --bg: #17121a;
+  --surface: #241b28;
+
+  /* Text */
+  --text: #d8d0dc;
+  --text-h: #ffffff;
+
+  /* border */
+  --border: #44374a;
+
+  /* Orbit brand colors to use throughout app*/
+  --primary: #c084d8;
+  --secondary: #d81b68;
+  --accent: #fbb550;
+  --magenta: #e0528a;
+  --blue: #67aeca;
+
+  /* Form / code backgrounds */
+  --code-bg: #2c2330;
+  --accent-bg: rgba(192, 132, 216, 0.12);
+  --accent-border: rgba(192, 132, 216, 0.45);
+
+  /* Shadows */
+  --shadow:
+    rgba(0, 0, 0, 0.35) 0 10px 15px -3px,
+    rgba(0, 0, 0, 0.2) 0 4px 6px -2px;
+
+  color-scheme: dark;
+}
+
+
+/* font size */
+@media (max-width: 1024px) {
+  :root {
     font-size: 16px;
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
 
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
-}
-
+/* updated body styles */
 body {
   margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease;
 }
 
 
+/* root app container */
 #root {
   width: 100%;
   min-height: 100svh;
@@ -66,34 +122,162 @@ body {
   box-sizing: border-box;
 }
 
+
+/* headings*/
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--heading);
+  color: var(--text-h);
+}
+
 h1,
 h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
+  font-weight: 600;
 }
 
 h1 {
   font-size: 56px;
+  line-height: 1.1;
   letter-spacing: -1.68px;
   margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
+  font-family: var(--logo)
 }
+
+
 h2 {
   font-size: 24px;
   line-height: 118%;
   letter-spacing: -0.24px;
   margin: 0 0 8px;
-  @media (max-width: 1024px) {
+  /* font-family: var(--logo) */
+}
+
+h3 {
+  font-size: 20px;
+  line-height: 1.25;
+}
+
+
+/* responsive headings for mobile , configure better later*/
+@media (max-width: 1024px) {
+  h1 {
+    font-size: 36px;
+    margin: 20px 0;
+  }
+
+  h2 {
     font-size: 20px;
   }
 }
+
+
+/* other styles */
 p {
   margin: 0;
 }
+
+a {
+  color: var(--primary);
+}
+
+a:hover {
+  color: var(--secondary);
+}
+
+
+/* form font */
+button,
+input,
+select,
+textarea {
+  font-family: var(--sans);
+}
+
+
+/* orbit-button for most buttons on the pages (not including forms or headers*/
+
+.orbit-button {
+  text-decoration: none;
+  min-height: 40px;
+  padding: 9px 20px;
+  border: none;
+  border-radius: 999px;
+  background: #4b006e;
+  color: #fff;
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.orbit-button:hover:not(:disabled) {
+  background: #d81b68;
+  transform: translateY(-1px);
+  box-shadow:
+    0 4px 8px rgba(75, 0, 110, 0.18);
+}
+
+.orbit-button:focus-visible {
+  outline: 3px solid #fbb550;
+  outline-offset: 2px;
+}
+
+.orbit-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* button-style for links */
+
+.button-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 9px 20px;
+  box-sizing: border-box;
+  border: none;
+  border-radius: 999px;
+  background: var(--primary);
+  color: #fff;
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1;
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.button-link:hover {
+  background: #d81b68;
+  color: #fff;
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 4px 8px rgba(75, 0, 110, 0.18);
+}
+
+.button-link:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+
 
 code,
 .counter {
@@ -109,3 +293,11 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+
+/* accessibility focus*/
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+

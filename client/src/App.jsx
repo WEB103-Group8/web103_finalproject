@@ -1,5 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import { ThemeProvider } from './context/ThemeContext'
 import OrbitRoutes from './OrbitRoutes'
 import Login from './pages/Login'
 import Onboarding from './pages/Onboarding'
@@ -16,21 +17,23 @@ function OnboardingRoute({ children }) {
 function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <Routes>
-          {OrbitRoutes()}
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route
-            path="/onboarding"
-            element={
-              <OnboardingRoute>
-                <Onboarding />
-              </OnboardingRoute>
-            }
-          />
-        </Routes>
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <Routes>
+            {OrbitRoutes()}
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route
+              path="/onboarding"
+              element={
+                <OnboardingRoute>
+                  <Onboarding />
+                </OnboardingRoute>
+              }
+            />
+          </Routes>
+        </AuthProvider>
+      </ThemeProvider>
     </BrowserRouter>
   )
 }

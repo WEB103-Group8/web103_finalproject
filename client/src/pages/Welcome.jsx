@@ -17,7 +17,7 @@ const Welcome = () => {
       <div className="welcome-hero">
         <h1>FIND YOUR ORBIT</h1>
         <p>Discover events and groups near you, or host your own.</p>
-        <Link className="orbit-button" to="/events">
+        <Link className="button-link" to="/events">
           Explore events
         </Link>
       </div>

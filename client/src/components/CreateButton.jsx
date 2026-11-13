@@ -9,7 +9,7 @@ const CreateButton = ({ to, children }) => {
   if (loading || (user && !user.is_host)) return null
 
   return (
-    <Link className="orbit-button" to={user ? to : '/login'} state={user ? undefined : { from: to }}>
+    <Link className="button-link" to={user ? to : '/login'} state={user ? undefined : { from: to }}>
       {children}
     </Link>
   )

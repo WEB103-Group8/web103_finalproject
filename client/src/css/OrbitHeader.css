@@ -75,22 +75,17 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
-  min-width: 76px;
+  width: 76px;
   height: 40px;
-  padding: 0 18px;
+  padding: 0;
   box-sizing: border-box;
-
   border: 1px solid #fff;
   border-radius: 999px;
-
   background: #fff;
   color: #4b006e;
-
   font-size: 0.95rem;
   font-weight: 700;
   text-decoration: none;
-
   transition:
     background-color 0.2s ease,
     color 0.2s ease,
@@ -159,6 +154,46 @@
   outline: 3px solid #fbb550;
   outline-offset: 3px;
 }
+
+/* light and dark mode theme toggle button styles */
+
+.orbit-theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  margin: 0;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: #fff;
+  color: #4b006e;
+  font-family: var(--sans);
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.orbit-theme-toggle:hover {
+  background: #fbb550;
+  border-color: #fbb550;
+  color: #4b006e;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18);
+}
+
+.orbit-theme-toggle:focus-visible {
+  outline: 3px solid #fbb550;
+  outline-offset: 3px;
+}
+
 
 
 /* avatar styles */

@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useTheme } from '../context/ThemeContext'
 import '../css/Auth.css'
 import orbitLogo from '../assets/orbit-logo.png'
 
 export default function Login() {
   const { user, loading, setUser } = useAuth()
+  const { theme, toggleTheme } = useTheme()
   const navigate = useNavigate()
   const [form, setForm] = useState({ email: '', password: '' })
   const [error, setError] = useState(null)
@@ -53,8 +55,21 @@ return (
           <img src={orbitLogo} alt="Orbit" />
          </Link>
         <Link to="/" className="auth-brand">
-          ORBIT
+          orbit
         </Link>
+
+
+        {/* light and dark mode toggle */}
+        <button
+          type="button"
+          className="auth-theme-toggle"
+          onClick={toggleTheme}
+          aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+          title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+        >
+          {theme === 'light' ? '☾' : '☀'}
+        </button>
+
       </nav>
 
       <main className="auth-main">

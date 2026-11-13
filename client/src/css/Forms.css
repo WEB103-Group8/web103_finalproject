@@ -139,7 +139,6 @@
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-
   transition:
     background-color 0.2s ease,
     transform 0.2s ease,
@@ -149,7 +148,6 @@
 .form-actions button:hover:not(:disabled) {
   background: #d81b68;
   transform: translateY(-1px);
-
   box-shadow:
     0 4px 8px rgba(75, 0, 110, 0.18);
 }

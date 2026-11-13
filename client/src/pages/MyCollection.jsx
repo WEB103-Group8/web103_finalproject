@@ -11,7 +11,7 @@ const MyCollection = () => {
     <section className="profile-page">
       <h1>My Collection</h1>
       <p>
-        <Link to="/profile">Edit my profile</Link>
+        <Link className="button-link"to="/profile">Edit my profile</Link>
       </p>
 
       <ProfileActivity userId={user.user_id} isSelf />

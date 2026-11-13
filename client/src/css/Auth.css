@@ -2,21 +2,22 @@
 
 .auth-page {
   min-height: 100vh;
-  background: #fafafa;
+  /* background: #fafafa; */
   color: #2b1633;
   font-family: var(--sans);
 }
 
-/*  AUTH NAVIGATION */
 
 .auth-nav {
   display: flex;
   align-items: center;
   padding: 12px 24px;
-  gap: 16px;
+  gap: 24px;
   background: #4b006e;
   border-bottom: 1px solid #4b006e;
 }
+
+/* orbit app brand name style */
 
 .auth-brand {
   color: #fff;
@@ -24,13 +25,13 @@
   font-weight: 700;
   letter-spacing: -0.5px;
   text-decoration: none;
+  font-family: var(--logo);
 }
 
 .auth-brand:hover {
   color: #fbb550;
 }
 
-/* MAIN CONTENT */
 
 .auth-main {
   min-height: calc(100vh - 65px);
@@ -41,24 +42,23 @@
   box-sizing: border-box;
 }
 
-/* AUTH CARD */
+/* card */
 
 .auth-card {
   width: 100%;
   max-width: 440px;
   padding: 40px;
   box-sizing: border-box;
-
   background: #fff;
   border: 1px solid #e5e4e7;
   border-radius: 16px;
-
   box-shadow:
-    0 10px 15px -3px rgba(0, 0, 0, 0.08),
+    0 10px 15px -3px rgba(0, 0, 0, 0.04),
     0 4px 6px -2px rgba(0, 0, 0, 0.04);
 }
 
-/* HEADING */
+
+/* login and register header styles */
 
 .auth-heading {
   margin-bottom: 28px;
@@ -67,9 +67,7 @@
 .auth-eyebrow {
   display: block;
   margin-bottom: 8px;
-
   color: #d81b68;
-
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 1.2px;
@@ -146,13 +144,11 @@
   box-shadow: 0 0 0 3px rgba(75, 0, 110, 0.15);
 }
 
-/* SELECT */
 
 select.auth-input {
   cursor: pointer;
 }
 
-/* ERROR */
 
 .auth-error {
   margin: 0;
@@ -168,25 +164,20 @@ select.auth-input {
   line-height: 1.4;
 }
 
-/* PRIMARY BUTTON */
+/* submit button */
 
 .auth-button {
   width: 100%;
   margin-top: 4px;
   padding: 12px 20px;
-
   border: none;
   border-radius: 999px;
-
   background: #4b006e;
   color: #fff;
-
   font-family: var(--sans);
   font-size: 1rem;
   font-weight: 600;
-
   cursor: pointer;
-
   transition:
     background-color 0.2s ease,
     transform 0.2s ease;
@@ -207,8 +198,7 @@ select.auth-input {
   cursor: not-allowed;
 }
 
-/* DIVIDER */
-
+/* divider styles */
 .auth-divider {
   display: flex;
   align-items: center;
@@ -228,7 +218,7 @@ select.auth-input {
   font-weight: 500;
 }
 
-/* GITHUB BUTTON */
+/* github button styles */
 
 .auth-github {
   width: 100%;
@@ -236,23 +226,16 @@ select.auth-input {
   align-items: center;
   justify-content: center;
   gap: 8px;
-
   padding: 11px 20px;
-
   background: #fff;
   color: #2b1633;
-
   border: 1px solid #b9b3bd;
   border-radius: 999px;
-
   font-family: var(--sans);
   font-size: 1rem;
   font-weight: 600;
-
   text-decoration: none;
-
   box-sizing: border-box;
-
   transition:
     border-color 0.2s ease,
     background-color 0.2s ease,
@@ -279,9 +262,7 @@ select.auth-input {
 
 .auth-footer {
   margin: 24px 0 0;
-
   text-align: center;
-
   color: #5f5863;
   font-size: 0.9rem;
   line-height: 1.5;
@@ -298,7 +279,7 @@ select.auth-input {
   color: #d81b68;
 }
 
-/*  LOGO */
+/*  logo styles */
 
 .orbit-logo {
   display: flex;
@@ -311,3 +292,44 @@ select.auth-input {
   height: auto;
   display: block;
 }
+
+/* light and dark mode theme toggle */
+
+.auth-theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  /* move to left during login/registration */
+  margin: 0 0 0 auto;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: #fff;
+  color: #4b006e;
+  font-family: var(--sans);
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.auth-theme-toggle:hover {
+  background: #fbb550;
+  border-color: #fbb550;
+  color: #4b006e;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18);
+}
+
+.auth-theme-toggle:focus-visible {
+  outline: 3px solid #fbb550;
+  outline-offset: 3px;
+}
+

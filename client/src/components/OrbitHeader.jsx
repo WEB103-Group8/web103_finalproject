@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useSession } from '../context/SessionContext'
+import { useTheme } from '../context/ThemeContext'
 import '../css/OrbitHeader.css'
 import orbitLogo from '../assets/orbit-logo.png'
 
@@ -8,6 +9,7 @@ import orbitLogo from '../assets/orbit-logo.png'
 const OrbitHeader = () => {
   const { user, signOut, loading } = useSession()
   const navigate = useNavigate()
+  const { theme, toggleTheme } = useTheme()
 
   // which dropdown is open: 'create' (the + button of hosts), 'account' (the avatar), or none
   const [openMenu, setOpenMenu] = useState(null)
@@ -47,7 +49,9 @@ const OrbitHeader = () => {
       <Link className="orbit-logo" to="/" aria-label="Orbit home">
         <img src={orbitLogo} alt="Orbit" />
       </Link>
-
+      <Link to="/" className="auth-brand">
+        orbit
+      </Link>
       <nav className="orbit-nav" aria-label="Main">
         <NavLink className="orbit-nav-link" to="/" end>Home</NavLink>
         <NavLink className="orbit-nav-link" to="/events">Events</NavLink>
@@ -59,6 +63,18 @@ const OrbitHeader = () => {
       <div className="orbit-actions">
         {!loading && (
           <>
+
+            {/* Theme toggle — visible to everyone (visitors, hosts, attendees*/}
+            <button
+              type="button"
+              className="orbit-theme-toggle"
+              onClick={toggleTheme}
+              aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+              title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+            >
+              {theme === 'light' ? '☾' : '☀'}
+            </button>
+
             {/* visitors get the same + button, which sends them to log in first */}
             {!user && (
               <Link
