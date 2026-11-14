@@ -10,12 +10,6 @@
 }
 
 
-
-/* profile card */
-.profile-page {
-  min-height: calc(100vh - 64px);
-}
-
 /* header */
 .profile-header {
   display: flex;
