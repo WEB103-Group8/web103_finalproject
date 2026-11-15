@@ -53,12 +53,12 @@ Complete the checklist below detailing each baseline, custom, and stretch featur
 
 - [X] The project gracefully handles errors
 - [X] The project includes a one-to-one database relationship
-- [ ] The project includes a slide-out pane or modal as appropriate for your use case that pops up and covers the page content without navigating away from the current page
-- [ ] The project includes a unique field within the join table
-- [ ] The project includes a custom non-RESTful route with corresponding controller actions
+- [X] The project includes a slide-out pane or modal as appropriate for your use case that pops up and covers the page content without navigating away from the current page
+- [X] The project includes a unique field within the join table
+- [X] The project includes a custom non-RESTful route with corresponding controller actions
 - [X] The user can filter or sort items based on particular criteria as appropriate for your use case
-- [ ] Data is automatically generated in response to a certain event or user action. Examples include generating a default inventory for a new user starting a game or creating a starter set of tasks for a user creating a new task app account
-- [ ] Data submitted via a POST or PATCH request is validated before the database is updated (e.g. validating that an event is in the future before allowing a new event to be created)
+- [X] Data is automatically generated in response to a certain event or user action. Examples include generating a default inventory for a new user starting a game or creating a starter set of tasks for a user creating a new task app account
+- [X] Data submitted via a POST or PATCH request is validated before the database is updated (e.g. validating that an event is in the future before allowing a new event to be created)
   - [ ] *To receive full credit, please be sure to demonstrate in your walkthrough that for certain inputs, the item will NOT be successfully created or updated.*
 
 ### Stretch Features
