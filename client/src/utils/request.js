@@ -1,3 +1,9 @@
+// adding api url for deployment
+const API_URL = import.meta.env.PROD
+  ? 'https://server-to3n.onrender.com'
+  : ''
+
+
 // an error from the API, carrying the status code and the field messages the server sent
 export class ApiError extends Error {
   constructor(status, message, details = {}, body = null) {
@@ -26,7 +32,7 @@ export const request = async (path, { method = 'GET', body } = {}) => {
   let response
 
   try {
-    response = await fetch(path, {
+    response = await fetch(`${API_URL}${path}`, {
       method,
       credentials: 'include',
       headers: body === undefined ? {} : { 'Content-Type': 'application/json' },
