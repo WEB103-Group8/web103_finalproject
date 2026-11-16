@@ -4,7 +4,7 @@ CodePath WEB103 Final Project
 
 Designed and developed by: Annie Gomez, My Pham, Manav Kothari
 
-Deployment: not available yet.
+Deployment: Not fully available yet, but here is the link: https://client-f5ji.onrender.com 
 
 ## About
 
