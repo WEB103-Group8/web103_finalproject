@@ -15,8 +15,11 @@ import GroupsRouter from "./routes/groups.js";
 import VenuesRouter from "./routes/venues.js";
 
 const app = express();
+
+app.set('trust proxy', 1)
+
 const PORT = process.env.PORT || 3000;
-const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5173";
+const CLIENT_URL = process.env.CLIENT_URL || "https://client-f5ji.onrender.com";
 
 app.use(cors({ origin: CLIENT_URL, credentials: true }));
 app.use(express.json());
@@ -28,8 +31,9 @@ app.use(
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
+      sameSite: "none",
+      // secure: process.env.NODE_ENV === "production",
+      secure: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
     },
   })

@@ -81,7 +81,7 @@ export const loginLocal = async (req, res) => {
 }
 
 export const handleCallback = (req, res) => {
-  const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173'
+  const clientUrl = process.env.CLIENT_URL || 'https://client-f5ji.onrender.com'
   if (req.user.isNewUser) {
     return res.redirect(`${clientUrl}/onboarding`)
   }

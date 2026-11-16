@@ -7,7 +7,7 @@ passport.use(
     {
       clientID: process.env.GITHUB_CLIENT_ID,
       clientSecret: process.env.GITHUB_CLIENT_SECRET,
-      callbackURL: process.env.CALLBACK_URL || 'http://localhost:5173/auth/github/callback',
+      callbackURL: process.env.CALLBACK_URL || 'https://server-to3n.onrender.com/auth/github/callback',
       userAgent: 'orbit-app',
     },
     async (accessToken, refreshToken, profile, done) => {

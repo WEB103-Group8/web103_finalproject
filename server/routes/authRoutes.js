@@ -12,7 +12,7 @@ router.get('/github', passport.authenticate('github', { scope: ['user:email'] })
 router.get(
   '/github/callback',
   passport.authenticate('github', {
-    failureRedirect: `${process.env.CLIENT_URL || 'http://localhost:5173'}/login`,
+    failureRedirect: `${process.env.CLIENT_URL || 'https://client-f5ji.onrender.com'}/login`,
   }),
   handleCallback
 )
