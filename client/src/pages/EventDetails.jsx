@@ -137,7 +137,7 @@ const EventView = ({ event, statuses }) => {
           onNotAttend={() => setConfirmingStop(true)}
         />
       ) : (
-        <Link className="orbit-button" to="/login" state={{ from: `/events/${event.event_id}` }}>
+        <Link className="button-link" to="/login" state={{ from: `/events/${event.event_id}` }}>
           Join
         </Link>
       )}
@@ -146,7 +146,7 @@ const EventView = ({ event, statuses }) => {
 
       {isOwner && (
         <section className="host-tools">
-          <Link to={`/events/${event.event_id}/edit`}>Edit</Link>
+          <Link  className="host-tool-button" to={`/events/${event.event_id}/edit`}>Edit</Link>
           <button type="button" className="danger" onClick={() => setConfirmingDelete(true)}>
             Delete
           </button>

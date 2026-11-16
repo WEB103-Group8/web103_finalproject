@@ -5,6 +5,10 @@
   gap: 12px;
   margin-bottom: 16px;
   text-align: left;
+
+  /* Keep the filter bar above the map */
+  position: relative;
+  z-index: 1000;
 }
 
 .filter-bar label {
@@ -26,7 +30,7 @@
   box-sizing: border-box;
 }
 
-/* "Upcoming only" and "Items per page" stay together on one line */
+/* Upcoming only and Items per page stay together on one line */
 .filter-inline {
   display: flex;
   flex: 1 1 280px;
@@ -55,6 +59,109 @@
   gap: 8px;
 }
 
+/* Custom suggestion dropdown fields */
+.filter-suggest {
+  position: relative;
+  display: flex;
+  flex: 1 1 140px;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  font-size: 0.9rem;
+
+  /* Keep suggestions above surrounding content */
+  z-index: 1001;
+}
+
+/* Search field takes up more horizontal space */
+.filter-suggest.wide {
+  flex: 2 1 260px;
+}
+
+.filter-suggest > label {
+  display: block;
+  flex: none;
+  margin: 0;
+}
+
+/* Custom dropdown list */
+.filter-suggest-list {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 1002;
+  max-height: 240px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 5px;
+  list-style: none;
+  border: 1px solid #d0d0d0;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #000000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.filter-suggest-list li {
+  margin: 0;
+  padding: 0;
+}
+
+/* Individual dropdown options */
+.filter-suggest-list button {
+  display: block;
+  width: 100%;
+  min-height: 38px;
+  padding: 9px 12px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #000000;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: left;
+  box-shadow: none;
+  transform: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+/* Dropdown hover and keyboard focus */
+.filter-suggest-list button:hover,
+.filter-suggest-list button:focus-visible {
+  background: #f0f0f0;
+  color: #000000;
+
+  box-shadow: none;
+  transform: none;
+}
+
+/* Items per page: match the other filter inputs, just shorter */
+
+.filter-inline label:not(.checkbox) {
+  flex: 0 1 140px;
+}
+
+.filter-inline select {
+  width: 110px;
+  min-width: 90px;
+  max-width: 110px;
+  box-sizing: border-box;
+}
+
+
+.filter-inline select:hover {
+  border-color: var(--border-hover);
+}
+
+.filter-inline select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: var(--focus-ring);
+}
+
 @media (max-width: 640px) {
   .filter-bar label,
   .filter-bar label.wide,
@@ -73,4 +180,30 @@
   .filter-buttons button {
     flex: 1;
   }
+}
+
+
+/* Keep dropdown scrollbars consistent in both themes */
+.filter-suggest-list {
+  scrollbar-width: thin;
+  scrollbar-color: #bdbdbd #ffffff;
+}
+
+.filter-suggest-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.filter-suggest-list::-webkit-scrollbar-track {
+  background: #ffffff;
+  border-radius: 8px;
+}
+
+.filter-suggest-list::-webkit-scrollbar-thumb {
+  background: #bdbdbd;
+  border-radius: 8px;
+  border: 2px solid #ffffff;
+}
+
+.filter-suggest-list::-webkit-scrollbar-thumb:hover {
+  background: #999999;
 }

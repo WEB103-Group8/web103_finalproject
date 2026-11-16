@@ -30,7 +30,9 @@
 .form-field {
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 10px;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 .form-field label {
@@ -153,7 +155,6 @@
   );
 
   color: var(--danger);
-
   font-size: var(--font-size-sm);
 }
 
@@ -162,8 +163,8 @@
 .form-section {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 20px;
+  gap: 20px;
+  padding: 24px;
   border: 1px solid var(--border);
   border-radius: var(--card-radius);
   background: var(--surface);

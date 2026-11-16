@@ -1,15 +1,20 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useTheme } from '../context/ThemeContext'
+import '../css/Onboarding.css'
+import orbitLogo from '../assets/orbit-logo.png'
 
 export default function Onboarding() {
   const { user, setUser } = useAuth()
+  const { theme, toggleTheme } = useTheme()
   const navigate = useNavigate()
   const [form, setForm] = useState({
     full_name: user?.full_name || '',
     city: user?.city || '',
     user_type: '',
   })
+
   const [error, setError] = useState(null)
   const [submitting, setSubmitting] = useState(false)
 
@@ -21,6 +26,7 @@ export default function Onboarding() {
     e.preventDefault()
     setError(null)
     setSubmitting(true)
+
     try {
       const res = await fetch('/api/users/onboarding', {
         method: 'POST',
@@ -28,11 +34,14 @@ export default function Onboarding() {
         credentials: 'include',
         body: JSON.stringify(form),
       })
+
       const data = await res.json()
+
       if (!res.ok) {
         setError(data.error || 'Something went wrong')
         return
       }
+
       setUser(data)
       navigate('/')
     } catch {
@@ -43,102 +52,106 @@ export default function Onboarding() {
   }
 
   return (
-    <div style={styles.container}>
-      <h1 style={styles.title}>Welcome to Orbit</h1>
-      <p style={styles.subtitle}>Tell us a bit about yourself to get started</p>
-      <form onSubmit={handleSubmit} style={styles.form}>
-        <label style={styles.label}>
-          Display name
-          <input
-            name="full_name"
-            value={form.full_name}
-            onChange={handleChange}
-            required
-            style={styles.input}
-            placeholder="Your name"
-          />
-        </label>
-        <label style={styles.label}>
-          City
-          <input
-            name="city"
-            value={form.city}
-            onChange={handleChange}
-            required
-            style={styles.input}
-            placeholder="e.g. San Francisco"
-          />
-        </label>
-        <label style={styles.label}>
-          I am primarily a…
-          <select
-            name="user_type"
-            value={form.user_type}
-            onChange={handleChange}
-            required
-            style={styles.input}
-          >
-            <option value="" disabled>
-              Select one
-            </option>
-            <option value="attendee">Attendee — I want to discover events</option>
-            <option value="host">Host — I want to create and manage events</option>
-          </select>
-        </label>
-        {error && <p style={styles.error}>{error}</p>}
-        <button type="submit" disabled={submitting} style={styles.button}>
-          {submitting ? 'Saving…' : 'Get started'}
+    <div className="onboarding-page">
+      <nav className="onboarding-nav">
+        <Link className="onboarding-logo" to="/" aria-label="Orbit home">
+          <img src={orbitLogo} alt="Orbit" />
+        </Link>
+
+        <Link to="/" className="onboarding-brand">
+          orbit
+        </Link>
+
+        <button
+          type="button"
+          className="onboarding-theme-toggle"
+          onClick={toggleTheme}
+          aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+          title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+        >
+          {theme === 'light' ? '☾' : '☀'}
         </button>
-      </form>
+      </nav>
+
+      <main className="onboarding-main">
+        <section className="onboarding-card">
+          <div className="onboarding-heading">
+            <span className="onboarding-eyebrow">WELCOME TO ORBIT</span>
+
+            <h1>Tell us about yourself</h1>
+
+            <p>
+              Tell us a bit about yourself to get started.
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="onboarding-form">
+            <label className="onboarding-label">
+              Display name
+
+              <input
+                name="full_name"
+                value={form.full_name}
+                onChange={handleChange}
+                required
+                className="onboarding-input"
+                placeholder="Your name"
+                autoComplete="name"
+              />
+            </label>
+
+            <label className="onboarding-label">
+              City
+
+              <input
+                name="city"
+                value={form.city}
+                onChange={handleChange}
+                required
+                className="onboarding-input"
+                placeholder="e.g. San Francisco"
+                autoComplete="address-level2"
+              />
+            </label>
+
+            <label className="onboarding-label">
+              I am primarily a…
+
+              <select
+                name="user_type"
+                value={form.user_type}
+                onChange={handleChange}
+                required
+                className="onboarding-input"
+              >
+                <option value="" disabled>
+                  Select one
+                </option>
+                <option value="attendee">
+                  Attendee — I want to discover events
+                </option>
+                <option value="host">
+                  Host — I want to create and manage events
+                </option>
+              </select>
+            </label>
+
+            {error && (
+              <p className="onboarding-error">
+                {error}
+              </p>
+            )}
+
+            <button
+              type="submit"
+              disabled={submitting}
+              className="onboarding-button"
+            >
+              {submitting ? 'Saving…' : 'Get started'}
+            </button>
+          </form>
+        </section>
+      </main>
     </div>
   )
-}
-
-const styles = {
-  container: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: '100vh',
-    gap: '0.75rem',
-    padding: '2rem',
-  },
-  title: { fontSize: '2rem', margin: 0 },
-  subtitle: { color: '#666', margin: 0 },
-  form: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '1rem',
-    width: '100%',
-    maxWidth: '420px',
-    marginTop: '1rem',
-  },
-  label: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '0.25rem',
-    fontWeight: 500,
-    fontSize: '0.9rem',
-    width: '100%',
-    textAlign: 'left',
-  },
-  input: {
-    padding: '0.6rem 0.75rem',
-    border: '1px solid #ccc',
-    borderRadius: '6px',
-    fontSize: '1rem',
-  },
-  button: {
-    padding: '0.75rem',
-    background: '#24292e',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '6px',
-    fontWeight: 600,
-    fontSize: '1rem',
-    cursor: 'pointer',
-    marginTop: '0.5rem',
-  },
-  error: { color: '#c0392b', margin: 0, fontSize: '0.9rem' },
 }

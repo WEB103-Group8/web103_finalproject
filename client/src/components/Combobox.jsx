@@ -3,23 +3,44 @@ import FormField from './FormField'
 import '../css/Combobox.css'
 
 // a text box with a dropdown under it: the parent decides what is typed and which options match, and the last choice is always "add a new one"
-const Combobox = ({ id, label, error, placeholder, query, onQueryChange, options, emptyText, onPick, addLabel, addDisabled = false, onAdd, listLabel, selectOnFocus = false }) => {
+// A reusable text field with a dropdown of selectable suggestions.
+const Combobox = ({
+  id,
+  label,
+  error,
+  placeholder,
+  query,
+  onQueryChange,
+  options,
+  emptyText,
+  onPick,
+  addLabel,
+  addDisabled = false,
+  onAdd,
+  listLabel,
+  selectOnFocus = false,
+  className = '',
+  type = 'text',
+}) => {
   const [open, setOpen] = useState(false)
 
   return (
     // the dropdown stays open while focus is anywhere inside this box, and closes when focus leaves
     <div
-      className="combobox"
+      className={`combobox ${className}`}
       onBlur={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false)
+        if (!event.currentTarget.contains(event.relatedTarget)) {
+          setOpen(false)
+        }
       }}
     >
       <FormField id={id} label={label} error={error}>
         <input
           id={id}
+          type={type}
           autoComplete="off"
           placeholder={placeholder}
-          value={query}
+          value={query ?? ''}
           onFocus={(event) => {
             if (selectOnFocus) event.currentTarget.select()
             setOpen(true)
@@ -29,13 +50,18 @@ const Combobox = ({ id, label, error, placeholder, query, onQueryChange, options
             onQueryChange(event.target.value)
             setOpen(true)
           }}
-          onKeyDown={(event) => event.key === 'Escape' && setOpen(false)}
+          onKeyDown={(event) => {
+            if (event.key === 'Escape') setOpen(false)
+          }}
         />
       </FormField>
 
       {open && (
         <ul aria-label={listLabel} className="combobox-list">
-          {options.length === 0 && emptyText && <li className="combobox-none">{emptyText}</li>}
+          {options.length === 0 && emptyText && (
+            <li className="combobox-none">{emptyText}</li>
+          )}
+
           {options.map((option) => (
             <li key={option.key}>
               <button
@@ -49,19 +75,22 @@ const Combobox = ({ id, label, error, placeholder, query, onQueryChange, options
               </button>
             </li>
           ))}
-          <li>
-            <button
-              type="button"
-              className="combobox-add"
-              disabled={addDisabled}
-              onClick={() => {
-                setOpen(false)
-                onAdd()
-              }}
-            >
-              {addLabel}
-            </button>
-          </li>
+
+          {addLabel && onAdd && (
+            <li>
+              <button
+                type="button"
+                className="combobox-add"
+                disabled={addDisabled}
+                onClick={() => {
+                  setOpen(false)
+                  onAdd()
+                }}
+              >
+                {addLabel}
+              </button>
+            </li>
+          )}
         </ul>
       )}
     </div>

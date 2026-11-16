@@ -133,40 +133,44 @@ const GroupView = ({ group }) => {
 
       {/* visitors log in first; the organizer cannot leave their own group */}
       {!user && (
-        <Link className="orbit-button" to="/login" state={{ from: `/groups/${group.group_id}` }}>
+        <Link className="button-link" to="/login" state={{ from: `/groups/${group.group_id}` }}>
           Join
         </Link>
       )}
       {user && isOrganizer && <p>You organize this group.</p>}
-      {user && !isOrganizer && !isMember && (
-        <button type="button" disabled={busy} onClick={join}>
-          Join
-        </button>
-      )}
-      {user && !isOrganizer && isMember && (
-        <button type="button" className="secondary" disabled={busy} onClick={() => setConfirmingLeave(true)}>
-          Leave
-        </button>
-      )}
-
+      {/* conditional rendering for join and save buttons depending on whether user is logged in */}
       {user && !isOrganizer && (
-        <button
-          type="button"
-          className={`save-button${isSaved ? ' saved' : ''}`}
-          disabled={saveBusy}
-          onClick={toggleSave}
-          aria-label={isSaved ? 'Unsave group' : 'Save group'}
-        >
-          {isSaved ? '♥ Saved' : '♡ Save'}
-        </button>
+        <div className="group-action-buttons">
+          {!isMember && (
+            <button type="button" disabled={busy} onClick={join}>
+              Join
+            </button>
+          )}
+
+          {isMember && (
+            <button type="button" className="secondary" disabled={busy} onClick={() => setConfirmingLeave(true)}>
+              Leave
+            </button>
+          )}
+
+          <button
+            type="button"
+            className={`save-button${isSaved ? ' saved' : ''}`}
+            disabled={saveBusy}
+            onClick={toggleSave}
+            aria-label={isSaved ? 'Unsave group' : 'Save group'}
+          >
+            {isSaved ? '♥ Saved' : '♡ Save'}
+          </button>
+        </div>
       )}
 
       {problem && <ErrorMessage message={problem} />}
 
       {isOrganizer && (
         <section className="host-tools">
-          <Link to={`/events/new?group=${group.group_id}`}>Create event</Link>
-          <Link to={`/groups/${group.group_id}/edit`}>Edit</Link>
+          <Link className="host-tool-button" to={`/events/new?group=${group.group_id}`}>Create event</Link>
+          <Link className="host-tool-button" to={`/groups/${group.group_id}/edit`}>Edit</Link>
           <button type="button" className="danger" onClick={() => setConfirmingDelete(true)}>
             Delete
           </button>

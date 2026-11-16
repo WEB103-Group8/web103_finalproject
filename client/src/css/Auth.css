@@ -308,7 +308,6 @@ select.auth-input {
   border-radius: 50%;
   background: #fff;
   color: #4b006e;
-  font-family: var(--sans);
   font-size: 1.2rem;
   line-height: 1;
   cursor: pointer;
@@ -320,7 +319,8 @@ select.auth-input {
     box-shadow 0.2s ease;
 }
 
-.auth-theme-toggle:hover {
+
+.auth-nav .auth-theme-toggle:hover {
   background: #fbb550;
   border-color: #fbb550;
   color: #4b006e;
@@ -332,4 +332,3 @@ select.auth-input {
   outline: 3px solid #fbb550;
   outline-offset: 3px;
 }
-

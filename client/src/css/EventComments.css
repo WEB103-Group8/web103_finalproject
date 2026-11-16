@@ -59,20 +59,29 @@
   font-style: italic;
 }
 
+
 .comment-list {
   list-style: none;
   margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
 }
 
 .comment-item {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
+  padding: 16px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-alt);
+  transition:
+    background-color var(--transition),
+    border-color var(--transition);
 }
+
 
 .comment-header {
   display: flex;
@@ -135,28 +144,51 @@
   padding-left: 46px;
 }
 
-.like-button {
+/* Like buttons: consistent white appearance in both themes */
+.event-comments .like-button,
+.event-comments .like-button:visited {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 3px 8px;
-  border: 1px solid var(--border);
+  padding: 4px 10px;
+  border: 1.5px solid #999999;
   border-radius: 999px;
-  background: none;
-  font: 0.85rem/1 inherit;
-  color: var(--text);
+  background: #ffffff;
+  color: #222222;
+  font: inherit;
+  font-size: 0.85rem;
+  line-height: 1.2;
   cursor: pointer;
   text-decoration: none;
-  transition: border-color 0.15s, color 0.15s, background 0.15s;
+
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
-.like-button:hover {
-  border-color: var(--accent);
-  color: var(--accent);
+/* Yellow-only hover for regular like buttons */
+.event-comments .like-button:hover {
+  border-color: #e5b800;
+  background: #fff8dc;
+  color: #222222;
+  box-shadow: 0 0 0 2px rgba(229, 184, 0, 0.18);
+  transform: none;
 }
 
-.like-button.liked {
-  border-color: var(--accent);
-  color: var(--accent);
-  background: var(--accent-bg);
+/* Liked state */
+.event-comments .like-button.liked {
+  border: 2px solid #e5b800;
+  background: #ffffff;
+  color: #222222;
+  box-shadow: 0 0 0 1px rgba(229, 184, 0, 0.15);
+}
+
+/* Yellow-only hover for liked buttons */
+.event-comments .like-button.liked:hover {
+  border-color: #d4a900;
+  background: #fff8dc;
+  color: #222222;
+  box-shadow: 0 0 0 2px rgba(229, 184, 0, 0.2);
+  transform: none;
 }

@@ -313,6 +313,14 @@ textarea {
   color: var(--text-heading);
 }
 
+/* Dropdown options */
+
+select option,
+select optgroup {
+  background-color: var(--surface);
+  color: var(--text-heading);
+}
+
 input::placeholder,
 textarea::placeholder {
   color: var(--text-muted);
