@@ -6,15 +6,15 @@ This document should be completed and submitted during **Unit 9** of this course
 
 This unit, be sure to complete all tasks listed below. To complete a task, place an `x` between the brackets.
 
-- [ ] Deploy your project on Render
-  - [ ] In `readme.md`, add the link to your deployed project
-- [ ] Update the status of issues in your project board as you complete them
-- [ ] In `readme.md`, check off the features you have completed in this unit by adding a ✅ emoji in front of their title
-  - [ ] Under each feature you have completed, **include a GIF** showing feature functionality
-- [ ] In this document, complete the **Reflection** section below
-- [ ] 🚩🚩🚩**Complete the Final Project Feature Checklist section below**, detailing each feature you completed in the project (ONLY include features you implemented, not features you planned)
-- [ ] 🚩🚩🚩**Record a GIF showing a complete run-through of your app** that displays all the components included in the **Final Project Feature Checklist** below
-  - [ ] Include this GIF in the **Final Demo GIF** section below
+- [X] Deploy your project on Render
+  - [X] In `readme.md`, add the link to your deployed project
+- [X] Update the status of issues in your project board as you complete them
+- [X] In `readme.md`, check off the features you have completed in this unit by adding a ✅ emoji in front of their title
+  - [X] Under each feature you have completed, **include a GIF** showing feature functionality
+- [X] In this document, complete the **Reflection** section below
+- [X] 🚩🚩🚩**Complete the Final Project Feature Checklist section below**, detailing each feature you completed in the project (ONLY include features you implemented, not features you planned)
+- [X] 🚩🚩🚩**Record a GIF showing a complete run-through of your app** that displays all the components included in the **Final Project Feature Checklist** below
+  - [X] Include this GIF in the **Final Demo GIF** section below
 
 ## Final Project Feature Checklist
 
@@ -45,7 +45,7 @@ Complete the checklist below detailing each baseline, custom, and stretch featur
     - [X] Components broken down into categories, including Page and Component types
     - [X] Corresponding container components and presenter components as appropriate
 - [X] The project includes dynamic routes for both frontend and backend apps
-- [ ] The project is deployed on Render with all pages and features that are visible to the user are working as intended
+- [X] The project is deployed on Render with all pages and features that are visible to the user are working as intended
 
 ### Custom Features
 
@@ -59,7 +59,7 @@ Complete the checklist below detailing each baseline, custom, and stretch featur
 - [X] The user can filter or sort items based on particular criteria as appropriate for your use case
 - [X] Data is automatically generated in response to a certain event or user action. Examples include generating a default inventory for a new user starting a game or creating a starter set of tasks for a user creating a new task app account
 - [X] Data submitted via a POST or PATCH request is validated before the database is updated (e.g. validating that an event is in the future before allowing a new event to be created)
-  - [ ] *To receive full credit, please be sure to demonstrate in your walkthrough that for certain inputs, the item will NOT be successfully created or updated.*
+  - [X] *To receive full credit, please be sure to demonstrate in your walkthrough that for certain inputs, the item will NOT be successfully created or updated.*
 
 ### Stretch Features
 
@@ -67,7 +67,7 @@ Complete the checklist below detailing each baseline, custom, and stretch featur
 
 - [X] A subset of pages require the user to log in before accessing the content
   - [X] Users can log in and log out via GitHub OAuth with Passport.js
-- [ ] Restrict available user options dynamically, such as restricting available purchases based on a user's currency
+- [X] Restrict available user options dynamically, such as restricting available purchases based on a user's currency
 - [X] Show a spinner while a page or page element is loading
 - [X] Disable buttons and inputs during the form submission process
 - [X] Disable buttons after they have been clicked
@@ -86,20 +86,20 @@ Complete the checklist below detailing each baseline, custom, and stretch featur
 
 ### 1. What went well during this unit?
 
-[👉🏾👉🏾👉🏾 your answer here]
+We were able to finish everything well!
 
 ### 2. What were some challenges your group faced in this unit?
 
-[👉🏾👉🏾👉🏾 your answer here]
+Deployment was a little difficult due to differences in our code.
 
 ### 3. What were some of the highlights or achievements that you are most proud of in this project?
 
-[👉🏾👉🏾👉🏾 your answer here]
+Creating a fully working app that we all worked on together, despite some group members leaving!
 
 ### 4. Reflecting on your web development journey so far, how have you grown since the beginning of the course?
 
-[👉🏾👉🏾👉🏾 your answer here]
+We have grown a lot! From learning about backend development and going from planning to deployment, we have a better understanding of the full webdev cycle.
 
 ### 5. Looking ahead, what are your goals related to web development, and what steps do you plan to take to achieve them?
 
-[👉🏾👉🏾👉🏾 your answer here]
+We hope to continue improving this project and maybe even deploy it as a real service!
