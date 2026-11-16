@@ -38,7 +38,7 @@ const EventCreate = () => {
   const { data, error, loading, reload } = useLoad(
     async () => {
       const [all, categories] = await Promise.all([GroupsAPI.getGroups(), CategoriesAPI.getCategories()])
-      return { groups: all.filter((group) => group.organizer_id === user.user_id), categories }
+      return { groups: all.filter((group) => String(group.organizer_id) === String(user.user_id)), categories }
     },
     [user.user_id],
   )

@@ -11,8 +11,8 @@ import feedRouter from "../../routes/feed.js";
 import groupsRouter from "../../routes/groups.js";
 import usersRouter from "../../routes/users.js";
 import venuesRouter from "../../routes/venues.js";
+import { RSVP_STATUS } from "../../domain/constants.js";
 import { SETTING_NAMES } from "../../utils/geocoder.js";
-import { SETTING } from "../../utils/settings.js";
 
 // Where each router is mounted, as in server.js.
 const mounts = [
@@ -52,9 +52,7 @@ const groupOf = async (person) => (await pool.query("SELECT group_id FROM groups
 before(async () => {
   await setUpTestDatabase();
 
-  // The settings the app reads from its environment; the address lookup points at the pretend service.
-  process.env[SETTING.hostUserType] = "host";
-  process.env[SETTING.attendingStatus] = "attending";
+  // The address lookup points at the pretend service.
   geocoder = await startFakeGeocoder({ [ADDRESS]: austin });
   process.env[SETTING_NAMES.url] = geocoder.url;
   process.env[SETTING_NAMES.userAgent] = "IntegrationTest/1.0";
@@ -115,11 +113,11 @@ describe("reading, open to everyone", () => {
     assert.equal((await call("GET", "/api/events?limit=abc")).status, 400);
   });
 
-  it("tells the page the two answers a person can give, read from the settings and the database", async () => {
+  it("tells the page the fixed attending answer and the other answer allowed by the database", async () => {
     const statuses = await call("GET", "/api/events/rsvp-statuses");
 
     assert.equal(statuses.status, 200);
-    assert.equal(statuses.body.attending, process.env[SETTING.attendingStatus]);
+    assert.equal(statuses.body.attending, RSVP_STATUS.ATTENDING);
     assert.equal(typeof statuses.body.notAttending, "string");
     assert.notEqual(statuses.body.notAttending, statuses.body.attending);
   });
@@ -177,12 +175,12 @@ describe("reading, open to everyone", () => {
     assert.equal((await call("GET", "/api/users/999999/events")).status, 404);
   });
 
-  it("lists the groups a person belongs to, marking the ones they organize", async () => {
+  it("lists the groups a person belongs to with their role", async () => {
     const hostGroups = await call("GET", `/api/users/${state.users.host.user_id}/groups`);
     assert.equal(hostGroups.status, 200);
     assert.ok(hostGroups.body.length > 0);
-    assert.ok(hostGroups.body.every((group) => typeof group.member_count === "number" && typeof group.is_organizer === "boolean"));
-    assert.ok(hostGroups.body.some((group) => group.is_organizer === true));
+    assert.ok(hostGroups.body.every((group) => typeof group.member_count === "number" && ["organizer", "member", "saved"].includes(group.role)));
+    assert.ok(hostGroups.body.some((group) => group.role === "organizer"));
 
     assert.equal((await call("GET", "/api/users/999999/groups")).status, 404);
     assert.equal((await call("GET", "/api/users/abc/groups")).status, 404);
@@ -190,6 +188,13 @@ describe("reading, open to everyone", () => {
 });
 
 describe("groups", () => {
+  it("lets logged-in people save and unsave groups", async () => {
+    const groupId = state.hostGroup;
+    assert.equal((await call("POST", `/api/groups/${groupId}/saves`)).status, 401);
+    assert.equal((await call("POST", `/api/groups/${groupId}/saves`, { as: "attendee" })).status, 204);
+    assert.equal((await call("DELETE", `/api/groups/${groupId}/saves/me`, { as: "attendee" })).status, 204);
+  });
+
   it("lets only hosts create a group, who becomes its first member", async () => {
     const body = { group_name: "Integration Group", category: state.category, description: "Made by a test" };
     assert.equal((await call("POST", "/api/groups", { body })).status, 401);
@@ -247,6 +252,19 @@ describe("groups", () => {
     assert.equal((await call("DELETE", path, { as: "otherHost" })).status, 403);
     assert.equal((await call("DELETE", path, { as: "host" })).status, 204);
     assert.equal((await call("GET", path)).status, 404);
+  });
+});
+
+describe("event comments and likes", () => {
+  it("lets anyone read comments and logged-in people post, like and unlike", async () => {
+    const existing = await call("GET", "/api/events/1/comments");
+    assert.equal(existing.status, 200);
+    assert.ok(existing.body.length > 0);
+
+    const created = await call("POST", "/api/events/1/comments", { as: "attendee", body: { comment_text: "Integration test comment" } });
+    assert.equal(created.status, 201);
+    assert.equal((await call("POST", `/api/events/1/comments/${created.body.comment_id}/likes`, { as: "attendee" })).status, 204);
+    assert.equal((await call("DELETE", `/api/events/1/comments/${created.body.comment_id}/likes`, { as: "attendee" })).status, 204);
   });
 });
 

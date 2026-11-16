@@ -2,13 +2,11 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { createUsersController } from "../../controllers/users.js";
-import { SETTING } from "../../utils/settings.js";
 import { fakeUsers } from "../helpers/fakes.js";
 import { createFakePool } from "../helpers/fakePool.js";
 import { createRes } from "../helpers/http.js";
 
-// The setting that names the answer meaning "going", and made-up database rules.
-process.env[SETTING.attendingStatus] = "going-word";
+// Made-up database rules.
 const rules = { allowedWords: {}, maxLengths: { "users.full_name": 20 }, maxIntegers: {} };
 
 // Build a controller wired to a pretend database that gives these answers in order.
@@ -31,9 +29,6 @@ describe("getUsers", () => {
 
 describe("getMe", () => {
   it("returns the person's own details, including whether they are a host", async () => {
-    // The setting that names what a host is called, set to match the fake host.
-    process.env[SETTING.hostUserType] = fakeUsers.host.user_type;
-
     const host = setup([{ rows: [{ user_id: fakeUsers.host.user_id, user_type: fakeUsers.host.user_type }] }]);
     const hostRes = createRes();
     await host.controller.getMe({ user: fakeUsers.host }, hostRes);
@@ -103,13 +98,13 @@ describe("getUserGroups", () => {
   });
 
   it("gives the groups the person belongs to, with their member counts and whether the person organizes each", async () => {
-    const { pool, controller } = setup([{ rows: [{}] }, { rows: [{ group_id: 1, is_organizer: true, member_count: 4 }] }]);
+    const { pool, controller } = setup([{ rows: [{}] }, { rows: [{ group_id: 1, role: "organizer", member_count: 4 }] }]);
     const res = createRes();
     await controller.getUserGroups({ params: { userId: "5" } }, res);
 
-    assert.deepEqual([res.statusCode, res.body], [200, [{ group_id: 1, is_organizer: true, member_count: 4 }]]);
+    assert.deepEqual([res.statusCode, res.body], [200, [{ group_id: 1, role: "organizer", member_count: 4 }]]);
     assert.match(pool.calls[1].sql, /FROM members AS mine/);
-    assert.match(pool.calls[1].sql, /groups\.organizer_id = mine\.user_id\) AS is_organizer/);
+    assert.match(pool.calls[1].sql, /CASE WHEN groups\.organizer_id = \$1 THEN 'organizer' ELSE 'member' END AS role/);
     assert.deepEqual(pool.calls[1].values, ["5"]);
   });
 });
@@ -139,7 +134,7 @@ describe("getUserEvents", () => {
 
     assert.deepEqual(res.body, [{ event_id: 1, role: "created" }]);
     assert.match(pool.calls[1].sql, /groups\.organizer_id = \$3/);
-    assert.deepEqual(pool.calls[1].values, ["going-word", me.user_id, "5"]);
+    assert.deepEqual(pool.calls[1].values, ["attending", me.user_id, "5"]);
   });
 
   it("returns the events a person is going to when the role is attending", async () => {

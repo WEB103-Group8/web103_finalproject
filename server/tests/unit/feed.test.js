@@ -2,14 +2,9 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { createFeedController } from "../../controllers/feed.js";
-import { SETTING } from "../../utils/settings.js";
 import { fakeUsers } from "../helpers/fakes.js";
 import { createFakePool } from "../helpers/fakePool.js";
 import { createRes } from "../helpers/http.js";
-
-// The settings that name the "going" answer and the host type, as the server would read them from its environment.
-process.env[SETTING.attendingStatus] = "going-word";
-process.env[SETTING.hostUserType] = fakeUsers.host.user_type;
 
 const setup = (answers) => {
   const pool = createFakePool(answers);
@@ -37,7 +32,7 @@ describe("getFeed", () => {
     const { pool, controller } = setup(lists);
     await controller.getFeed({ query: {}, user: fakeUsers.attendee }, createRes());
 
-    assert.deepEqual(pool.calls[1].values, ["going-word", fakeUsers.attendee.user_id, fakeUsers.attendee.state, fakeUsers.attendee.city]);
+    assert.deepEqual(pool.calls[1].values, ["attending", fakeUsers.attendee.user_id, fakeUsers.attendee.state, fakeUsers.attendee.city]);
     assert.match(pool.calls[1].sql, /venues\.state = \$3/);
     assert.match(pool.calls[1].sql, /ORDER BY \(venues\.city = \$4\) DESC/);
   });
@@ -46,7 +41,7 @@ describe("getFeed", () => {
     const { pool, controller } = setup(lists);
     await controller.getFeed({ query: {}, user: { ...fakeUsers.attendee, state: null } }, createRes());
 
-    assert.deepEqual(pool.calls[1].values, ["going-word", fakeUsers.attendee.user_id, fakeUsers.attendee.city]);
+    assert.deepEqual(pool.calls[1].values, ["attending", fakeUsers.attendee.user_id, fakeUsers.attendee.city]);
     assert.match(pool.calls[1].sql, /venues\.city = \$3/);
   });
 

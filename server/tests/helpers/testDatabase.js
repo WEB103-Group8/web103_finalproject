@@ -15,6 +15,7 @@ async function assertInTestSchema(client) {
 export async function fillTestSchema(client) {
   await createTables(client);
   for (const table of TABLES) {
+    if (table.rows.length === 0) continue;
     await seedTable(client, table);
     await syncIdCounter(client, table);
   }

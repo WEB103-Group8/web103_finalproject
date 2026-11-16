@@ -1,7 +1,7 @@
 import { pool as defaultPool } from '../config/database.js'
 import { sendDatabaseError, sendNotFound, sendValidationError } from '../utils/http.js'
 import { createRulesLoader } from '../utils/schemaRules.js'
-import { SETTING, requireSetting } from '../utils/settings.js'
+import { RSVP_STATUS } from '../domain/constants.js'
 import { isValidId } from '../utils/validators.js'
 
 // the database and rules can be swapped out, so tests never need a real one
@@ -44,7 +44,7 @@ const createRsvpsController = ({ pool = defaultPool, loadRules = createRulesLoad
             if (!isValidId(eventId)) return sendNotFound(res, 'Event')
 
             // with no answer sent, the person is saying they are going
-            const attendingStatus = requireSetting(SETTING.attendingStatus)
+            const attendingStatus = RSVP_STATUS.ATTENDING
             const status = req.body?.rsvp_status ?? attendingStatus
             const problem = await checkStatus(status)
             if (problem) return sendValidationError(res, problem)
@@ -83,7 +83,7 @@ const createRsvpsController = ({ pool = defaultPool, loadRules = createRulesLoad
             const problem = await checkStatus(status)
             if (problem) return sendValidationError(res, problem)
 
-            const attendingStatus = requireSetting(SETTING.attendingStatus)
+            const attendingStatus = RSVP_STATUS.ATTENDING
 
             const reply = await inTransaction(async (client) => {
                 const event = await lockEvent(client, eventId)
@@ -150,7 +150,7 @@ const createRsvpsController = ({ pool = defaultPool, loadRules = createRulesLoad
 
             res.status(200).json({
                 capacity: event.rows[0].capacity,
-                attending: counts[requireSetting(SETTING.attendingStatus)] ?? 0,
+                attending: counts[RSVP_STATUS.ATTENDING] ?? 0,
                 counts,
                 rsvps: results.rows
             })
@@ -162,7 +162,7 @@ const createRsvpsController = ({ pool = defaultPool, loadRules = createRulesLoad
     // the two answers a person can give, so the page never needs to type the words: "going" and the other allowed answer
     const getRsvpStatuses = async (req, res) => {
         try {
-            const attending = requireSetting(SETTING.attendingStatus)
+            const attending = RSVP_STATUS.ATTENDING
             const allowed = (await loadRules()).allowedWords['rsvps.rsvp_status'] ?? []
             res.status(200).json({ attending, notAttending: allowed.find((word) => word !== attending) ?? null })
         } catch (error) {

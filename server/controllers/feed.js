@@ -1,7 +1,7 @@
 import { pool as defaultPool } from '../config/database.js'
 import { EVENTS_WITH_DETAILS, ONE_ROW_PER_EVENT } from '../utils/eventSql.js'
 import { sendDatabaseError, sendValidationError } from '../utils/http.js'
-import { SETTING, requireSetting } from '../utils/settings.js'
+import { RSVP_STATUS, USER_TYPE } from '../domain/constants.js'
 import { addTimezones } from '../utils/timezone.js'
 
 // only events that have not started yet
@@ -17,7 +17,7 @@ const createFeedController = ({ pool = defaultPool } = {}) => {
                 return sendValidationError(res, { limit: 'limit must be a whole number.' })
             }
 
-            const attending = requireSetting(SETTING.attendingStatus)
+            const attending = RSVP_STATUS.ATTENDING
             const { user_id: userId, city, state, user_type: userType } = req.user
 
             // $1 is the "going" answer and $2 is the visitor; anything extra starts at $3
@@ -49,7 +49,7 @@ const createFeedController = ({ pool = defaultPool } = {}) => {
             const feed = { byGroups: lists[0], byCity: lists[1], yourEvents: lists[2] }
 
             // hosts also get the events of the groups they organize
-            if (userType === requireSetting(SETTING.hostUserType)) {
+            if (userType === USER_TYPE.HOST) {
                 feed.hosting = await findEvents({ conditions: ['groups.organizer_id = $2'] })
             }
 

@@ -2,14 +2,13 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { createRsvpsController } from "../../controllers/rsvps.js";
-import { SETTING } from "../../utils/settings.js";
+import { RSVP_STATUS, RSVP_STATUSES } from "../../domain/constants.js";
 import { fakeUsers } from "../helpers/fakes.js";
 import { createFakePool } from "../helpers/fakePool.js";
 import { createRes, withQuietErrors } from "../helpers/http.js";
 
-// The setting that names the answer meaning "going", and made-up database rules listing the allowed answers.
-process.env[SETTING.attendingStatus] = "going-word";
-const rules = { allowedWords: { "rsvps.rsvp_status": ["going-word", "not-going"] }, maxLengths: {}, maxIntegers: {} };
+// Made-up database rules listing the fixed allowed answers.
+const rules = { allowedWords: { "rsvps.rsvp_status": RSVP_STATUSES }, maxLengths: {}, maxIntegers: {} };
 
 // Build a controller wired to a pretend database that gives these answers in order.
 const setup = (answers = []) => {
@@ -24,12 +23,12 @@ const request = (body) => ({ params: { eventId: "9" }, body, user });
 const steps = (pool) => pool.calls.map((call) => call.sql.split(" ")[0]);
 
 describe("getRsvpStatuses", () => {
-  it("gives the going answer from the settings and the other allowed answer from the database", async () => {
+  it("gives the fixed attending answer and the other allowed answer from the database", async () => {
     const { controller } = setup();
     const res = createRes();
     await controller.getRsvpStatuses({}, res);
 
-    assert.deepEqual([res.statusCode, res.body], [200, { attending: "going-word", notAttending: "not-going" }]);
+    assert.deepEqual([res.statusCode, res.body], [200, { attending: RSVP_STATUS.ATTENDING, notAttending: RSVP_STATUS.NOT_ATTENDING }]);
   });
 });
 
@@ -57,14 +56,14 @@ describe("createRsvp", () => {
     assert.deepEqual(steps(pool), ["BEGIN", "SELECT", "SELECT", "SELECT", "INSERT", "COMMIT"]);
     // The event is locked while its places are counted.
     assert.match(pool.calls[1].sql, /FOR UPDATE/);
-    assert.deepEqual(pool.calls[4].values, [user.user_id, "9", "going-word"]);
+    assert.deepEqual(pool.calls[4].values, [user.user_id, "9", RSVP_STATUS.ATTENDING]);
     assert.equal(pool.released, 1);
   });
 
   it("does not count places for an answer that is not 'going'", async () => {
     const { pool, controller } = setup([{}, open, { rows: [] }, { rows: [{ rsvp_id: 6 }] }, {}]);
     const res = createRes();
-    await controller.createRsvp(request({ rsvp_status: "not-going" }), res);
+    await controller.createRsvp(request({ rsvp_status: RSVP_STATUS.NOT_ATTENDING }), res);
 
     assert.equal(res.statusCode, 201);
     assert.equal(pool.calls.some((call) => call.sql.includes("COUNT")), false);
@@ -123,43 +122,43 @@ describe("updateRsvp", () => {
 
   it("answers 404 when the person has not answered yet", async () => {
     const res = createRes();
-    await setup([{}, open, { rows: [] }, {}]).controller.updateRsvp(request({ rsvp_status: "going-word" }), res);
+    await setup([{}, open, { rows: [] }, {}]).controller.updateRsvp(request({ rsvp_status: RSVP_STATUS.ATTENDING }), res);
     assert.equal(res.statusCode, 404);
   });
 
   it("changes nothing when the same answer is sent again", async () => {
-    const { pool, controller } = setup([{}, open, answered("going-word"), {}]);
+    const { pool, controller } = setup([{}, open, answered(RSVP_STATUS.ATTENDING), {}]);
     const res = createRes();
-    await controller.updateRsvp(request({ rsvp_status: "going-word" }), res);
+    await controller.updateRsvp(request({ rsvp_status: RSVP_STATUS.ATTENDING }), res);
     assert.equal(res.statusCode, 200);
     assert.equal(pool.calls.some((call) => call.sql.startsWith("UPDATE")), false);
   });
 
   it("checks the places when switching to 'going', and answers 409 if the event is full", async () => {
-    const { controller } = setup([{}, open, answered("not-going"), { rows: [{ attending: 2 }] }, {}]);
+    const { controller } = setup([{}, open, answered(RSVP_STATUS.NOT_ATTENDING), { rows: [{ attending: 2 }] }, {}]);
     const res = createRes();
-    await controller.updateRsvp(request({ rsvp_status: "going-word" }), res);
+    await controller.updateRsvp(request({ rsvp_status: RSVP_STATUS.ATTENDING }), res);
     assert.equal(res.statusCode, 409);
   });
 
   it("switches to 'going' when there is room, and to another answer without counting", async () => {
-    const toGoing = setup([{}, open, answered("not-going"), { rows: [{ attending: 1 }] }, { rows: [{ rsvp_id: 5, rsvp_status: "going-word" }] }, {}]);
+    const toGoing = setup([{}, open, answered(RSVP_STATUS.NOT_ATTENDING), { rows: [{ attending: 1 }] }, { rows: [{ rsvp_id: 5, rsvp_status: RSVP_STATUS.ATTENDING }] }, {}]);
     const goingRes = createRes();
-    await toGoing.controller.updateRsvp(request({ rsvp_status: "going-word" }), goingRes);
+    await toGoing.controller.updateRsvp(request({ rsvp_status: RSVP_STATUS.ATTENDING }), goingRes);
     assert.equal(goingRes.statusCode, 200);
-    assert.deepEqual(toGoing.pool.calls[4].values, ["going-word", 5]);
+    assert.deepEqual(toGoing.pool.calls[4].values, [RSVP_STATUS.ATTENDING, 5]);
 
-    const toNotGoing = setup([{}, open, answered("going-word"), { rows: [{ rsvp_id: 5, rsvp_status: "not-going" }] }, {}]);
+    const toNotGoing = setup([{}, open, answered(RSVP_STATUS.ATTENDING), { rows: [{ rsvp_id: 5, rsvp_status: RSVP_STATUS.NOT_ATTENDING }] }, {}]);
     const notGoingRes = createRes();
-    await toNotGoing.controller.updateRsvp(request({ rsvp_status: "not-going" }), notGoingRes);
+    await toNotGoing.controller.updateRsvp(request({ rsvp_status: RSVP_STATUS.NOT_ATTENDING }), notGoingRes);
     assert.equal(notGoingRes.statusCode, 200);
     assert.equal(toNotGoing.pool.calls.some((call) => call.sql.includes("COUNT")), false);
   });
 
   it("refuses a change once the event has started", async () => {
-    const { controller } = setup([{}, { rows: [{ capacity: 2, started: true }] }, answered("going-word"), {}]);
+    const { controller } = setup([{}, { rows: [{ capacity: 2, started: true }] }, answered(RSVP_STATUS.ATTENDING), {}]);
     const res = createRes();
-    await controller.updateRsvp(request({ rsvp_status: "not-going" }), res);
+    await controller.updateRsvp(request({ rsvp_status: RSVP_STATUS.NOT_ATTENDING }), res);
     assert.equal(res.statusCode, 400);
   });
 });
@@ -189,16 +188,16 @@ describe("getEventRsvps", () => {
 
   it("lists who answered, with the capacity, the number going and a count for every answer", async () => {
     const rows = [
-      { user_id: 1, rsvp_status: "going-word" },
-      { user_id: 2, rsvp_status: "not-going" },
-      { user_id: 3, rsvp_status: "going-word" },
+      { user_id: 1, rsvp_status: RSVP_STATUS.ATTENDING },
+      { user_id: 2, rsvp_status: RSVP_STATUS.NOT_ATTENDING },
+      { user_id: 3, rsvp_status: RSVP_STATUS.ATTENDING },
     ];
     const { pool, controller } = setup([{ rows: [{ capacity: 30 }] }, { rows }]);
     const res = createRes();
     await controller.getEventRsvps({ params: { eventId: "9" } }, res);
 
     assert.equal(res.statusCode, 200);
-    assert.deepEqual(res.body, { capacity: 30, attending: 2, counts: { "going-word": 2, "not-going": 1 }, rsvps: rows });
+    assert.deepEqual(res.body, { capacity: 30, attending: 2, counts: { [RSVP_STATUS.ATTENDING]: 2, [RSVP_STATUS.NOT_ATTENDING]: 1 }, rsvps: rows });
     assert.match(pool.calls[1].sql, /JOIN users ON users\.user_id = rsvps\.user_id/);
   });
 });

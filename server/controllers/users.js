@@ -3,7 +3,7 @@ import { isLoggedIn } from '../utils/access.js'
 import { EVENTS_WITH_DETAILS, ONE_ROW_PER_EVENT } from '../utils/eventSql.js'
 import { sendDatabaseError, sendNotFound, sendValidationError } from '../utils/http.js'
 import { createRulesLoader } from '../utils/schemaRules.js'
-import { SETTING, requireSetting } from '../utils/settings.js'
+import { RSVP_STATUS, USER_TYPE } from '../domain/constants.js'
 import { addTimezone } from '../utils/timezone.js'
 import { PROFILE_FIELDS, isValidId, validateProfileInput } from '../utils/validators.js'
 
@@ -37,7 +37,7 @@ const createUsersController = ({ pool = defaultPool, loadRules = createRulesLoad
             if (results.rows.length === 0) return sendNotFound(res, 'User')
 
             const me = results.rows[0]
-            res.status(200).json({ ...me, is_host: me.user_type === requireSetting(SETTING.hostUserType) })
+            res.status(200).json({ ...me, is_host: me.user_type === USER_TYPE.HOST })
         } catch (error) {
             sendDatabaseError(res, 'fetch your profile', error)
         }
@@ -75,7 +75,7 @@ const createUsersController = ({ pool = defaultPool, loadRules = createRulesLoad
             if (person.rows.length === 0) return sendNotFound(res, 'User')
 
             // $1 is the "going" answer, $2 is the visitor and $3 is the person whose events these are
-            const values = [requireSetting(SETTING.attendingStatus), isLoggedIn(req) ? req.user.user_id : null, userId]
+            const values = [RSVP_STATUS.ATTENDING, isLoggedIn(req) ? req.user.user_id : null, userId]
             const roles = role === undefined ? Object.keys(EVENT_ROLES) : [role]
 
             const events = []

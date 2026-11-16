@@ -2,13 +2,9 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { createEventsController } from "../../controllers/events.js";
-import { SETTING } from "../../utils/settings.js";
 import { fakeUsers } from "../helpers/fakes.js";
 import { createFakePool } from "../helpers/fakePool.js";
 import { createRes, withQuietErrors } from "../helpers/http.js";
-
-// The setting that names the answer meaning "going", as the server would read it from its environment.
-process.env[SETTING.attendingStatus] = "going-word";
 
 // A fixed "now", and made-up database rules, so these tests give the same answer every day.
 const NOW = Date.parse("2026-11-08T12:00:00Z");
@@ -32,7 +28,7 @@ describe("getEvents", () => {
     await controller.getEvents({ query, user: fakeUsers.attendee }, res);
 
     assert.equal(res.statusCode, 200);
-    assert.deepEqual(pool.calls[0].values, ["going-word", fakeUsers.attendee.user_id, "TX", "%trivia%", "%night%", "2026-12-01", "2026-12-31", "10", "20"]);
+    assert.deepEqual(pool.calls[0].values, ["attending", fakeUsers.attendee.user_id, "TX", "%trivia%", "%night%", "2026-12-01", "2026-12-31", "10", "20"]);
     assert.match(pool.calls[0].sql, /JOIN groups/);
     assert.match(pool.calls[0].sql, /JOIN venues/);
     assert.match(pool.calls[0].sql, /localtimestamp/);
@@ -43,7 +39,7 @@ describe("getEvents", () => {
     const { pool, controller } = setup([{ rows: [] }]);
     await controller.getEvents({ query: {}, user: null }, createRes());
     assert.match(pool.calls[0].sql, /ORDER BY events\.start_time ASC/);
-    assert.deepEqual(pool.calls[0].values, ["going-word", null]);
+    assert.deepEqual(pool.calls[0].values, ["attending", null]);
   });
 
   it("refuses paging values that are not whole numbers before asking the database", async () => {
@@ -92,7 +88,7 @@ describe("getEventPins", () => {
     await controller.getEventPins({ query: { state: "TX", q: "trivia" } }, res);
 
     assert.deepEqual([res.statusCode, res.body], [200, [{ event_id: 1 }]]);
-    assert.deepEqual(pool.calls[0].values, ["going-word", "TX", "%trivia%"]);
+    assert.deepEqual(pool.calls[0].values, ["attending", "TX", "%trivia%"]);
     assert.match(pool.calls[0].sql, /venues\.latitude/);
     assert.doesNotMatch(pool.calls[0].sql, /my_rsvp|JOIN users/);
   });
@@ -115,7 +111,7 @@ describe("getEventById", () => {
     const foundRes = createRes();
     await found.controller.getEventById({ params: { eventId: "5" }, user: fakeUsers.attendee }, foundRes);
     assert.deepEqual([foundRes.statusCode, foundRes.body], [200, { event_id: 5 }]);
-    assert.deepEqual(found.pool.calls[0].values, ["going-word", fakeUsers.attendee.user_id, "5"]);
+    assert.deepEqual(found.pool.calls[0].values, ["attending", fakeUsers.attendee.user_id, "5"]);
   });
 });
 

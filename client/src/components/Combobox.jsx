@@ -3,7 +3,7 @@ import FormField from './FormField'
 import '../css/Combobox.css'
 
 // a text box with a dropdown under it: the parent decides what is typed and which options match, and the last choice is always "add a new one"
-const Combobox = ({ id, label, error, placeholder, query, onQueryChange, options, emptyText, onPick, addLabel, addDisabled = false, onAdd, listLabel }) => {
+const Combobox = ({ id, label, error, placeholder, query, onQueryChange, options, emptyText, onPick, addLabel, addDisabled = false, onAdd, listLabel, selectOnFocus = false }) => {
   const [open, setOpen] = useState(false)
 
   return (
@@ -20,7 +20,10 @@ const Combobox = ({ id, label, error, placeholder, query, onQueryChange, options
           autoComplete="off"
           placeholder={placeholder}
           value={query}
-          onFocus={() => setOpen(true)}
+          onFocus={(event) => {
+            if (selectOnFocus) event.currentTarget.select()
+            setOpen(true)
+          }}
           onClick={() => setOpen(true)}
           onChange={(event) => {
             onQueryChange(event.target.value)

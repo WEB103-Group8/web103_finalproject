@@ -2,12 +2,8 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { requireHost, requireOrganizer, requireUser } from "../../utils/access.js";
-import { SETTING } from "../../utils/settings.js";
+import { USER_TYPE } from "../../domain/constants.js";
 import { fakeUsers } from "../helpers/fakes.js";
-import { withQuietErrors } from "../helpers/http.js";
-
-// The setting that names what a host is called, set to match the fake host.
-process.env[SETTING.hostUserType] = fakeUsers.host.user_type;
 
 // Run a check with a fake request and report what happened: the status code sent, or "next" if it let the request through.
 async function run(check, user) {
@@ -60,19 +56,9 @@ describe("requireHost", () => {
     assert.equal(await run(requireHost, fakeUsers.otherHost), "next");
   });
 
-  it("follows the setting for what a host is called, and answers 500 if it is missing", async () => {
-    const saved = process.env[SETTING.hostUserType];
-    try {
-      // A different word makes the fake host stop counting as a host.
-      process.env[SETTING.hostUserType] = "organizer";
-      assert.equal(await run(requireHost, fakeUsers.host), 403);
-
-      // With no setting at all, the server cannot decide and says so.
-      delete process.env[SETTING.hostUserType];
-      assert.equal(await withQuietErrors(() => run(requireHost, fakeUsers.host)), 500);
-    } finally {
-      process.env[SETTING.hostUserType] = saved;
-    }
+  it("uses the fixed host role from the domain constants", async () => {
+    assert.equal(fakeUsers.host.user_type, USER_TYPE.HOST);
+    assert.equal(await run(requireHost, { ...fakeUsers.host, user_type: "organizer" }), 403);
   });
 });
 

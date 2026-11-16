@@ -36,8 +36,9 @@ const GroupPicker = ({ value, groups, categories, error, onChange, onGroupCreate
         placeholder="Search your groups"
         query={query}
         onQueryChange={handleTyping}
+        selectOnFocus
         options={matches.map((group) => ({ key: group.group_id, label: group.group_name }))}
-        emptyText="No matching group."
+        emptyText={groups.length === 0 ? 'You have no groups yet.' : 'No matching group.'}
         onPick={(option) => {
           onChange(String(option.key))
           setQuery(option.label)

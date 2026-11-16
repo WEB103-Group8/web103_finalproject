@@ -51,6 +51,10 @@ describe("events routes", () => {
       "POST /:eventId/rsvps (2)",
       "PATCH /:eventId/rsvps/me (2)",
       "DELETE /:eventId/rsvps/me (2)",
+      "GET /:eventId/comments (1)",
+      "POST /:eventId/comments (2)",
+      "POST /:eventId/comments/:commentId/likes (2)",
+      "DELETE /:eventId/comments/:commentId/likes (2)",
     ]);
   });
 });
@@ -66,6 +70,8 @@ describe("groups routes", () => {
       "GET /:groupId/members (1)",
       "POST /:groupId/members (2)",
       "DELETE /:groupId/members/me (2)",
+      "POST /:groupId/saves (2)",
+      "DELETE /:groupId/saves/me (2)",
     ]);
   });
 });

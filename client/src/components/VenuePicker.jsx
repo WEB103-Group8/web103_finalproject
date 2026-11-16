@@ -22,16 +22,39 @@ const VenuePicker = ({ value, online, meetingLink, onChange, onOnlineChange, onM
   // searching saved venues
   const [query, setQuery] = useState('')
   const [results, setResults] = useState([])
+  const [searching, setSearching] = useState(false)
   const text = query.trim()
 
+  const handleQueryChange = (nextQuery) => {
+    const nextText = nextQuery.trim()
+    setQuery(nextQuery)
+    setResults([])
+    setSearching(nextText.length >= MIN_SEARCH_LETTERS)
+  }
+
   useEffect(() => {
-    if (text.length < MIN_SEARCH_LETTERS) return undefined
+    if (text.length < MIN_SEARCH_LETTERS) {
+      setResults([])
+      setSearching(false)
+      return undefined
+    }
 
     let active = true
+    // Don't leave matches from the previous query visible while the new search waits or loads.
+    setResults([])
+    setSearching(true)
     const timer = setTimeout(() => {
       VenuesAPI.getVenues({ q: text })
-        .then((venues) => active && setResults(venues))
-        .catch(() => active && setResults([]))
+        .then((venues) => {
+          if (!active) return
+          setResults(venues)
+          setSearching(false)
+        })
+        .catch(() => {
+          if (!active) return
+          setResults([])
+          setSearching(false)
+        })
     }, SEARCH_DELAY_MS)
 
     return () => {
@@ -148,9 +171,9 @@ const VenuePicker = ({ value, online, meetingLink, onChange, onOnlineChange, onM
           error={error}
           placeholder="Search by name, city or state"
           query={query}
-          onQueryChange={setQuery}
+          onQueryChange={handleQueryChange}
           options={options}
-          emptyText={text.length >= MIN_SEARCH_LETTERS ? 'No venues found.' : null}
+          emptyText={text.length >= MIN_SEARCH_LETTERS ? (searching ? 'Searching venues…' : 'No venues found.') : null}
           onPick={(option) => (option.key === 'online' ? onOnlineChange(true) : onChange(option.venue))}
           addLabel="+ Add Venue"
           onAdd={startNewVenue}

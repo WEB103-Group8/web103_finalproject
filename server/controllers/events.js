@@ -5,7 +5,7 @@ import { sendDatabaseError, sendNotFound, sendValidationError } from '../utils/h
 import { createRulesLoader } from '../utils/schemaRules.js'
 import { addSearchConditions } from '../utils/search.js'
 import { addTimezone, addTimezones } from '../utils/timezone.js'
-import { SETTING, requireSetting } from '../utils/settings.js'
+import { RSVP_STATUS } from '../domain/constants.js'
 import { buildSchedule, isValidId, validateEventInput } from '../utils/validators.js'
 
 // the query-string filters people can use, and the column each one checks
@@ -57,7 +57,7 @@ const createEventsController = ({ pool = defaultPool, loadRules = createRulesLoa
     // find one event with all its joined details
     const findEvent = async (req, eventId) => {
         const results = await pool.query(EVENTS_WITH_DETAILS + ' WHERE events.event_id = $3' + ONE_ROW_PER_EVENT, [
-            requireSetting(SETTING.attendingStatus),
+            RSVP_STATUS.ATTENDING,
             visitorId(req),
             eventId
         ])
@@ -84,8 +84,8 @@ const createEventsController = ({ pool = defaultPool, loadRules = createRulesLoa
 
     const getEvents = async (req, res) => {
         try {
-            // $1 is the answer that counts as going (named in the settings) and $2 is the visitor, so filters start at $3
-            const values = [requireSetting(SETTING.attendingStatus), visitorId(req)]
+            // $1 is the fixed attending answer and $2 is the visitor, so filters start at $3
+            const values = [RSVP_STATUS.ATTENDING, visitorId(req)]
             const conditions = []
             addEventFilters(req.query, values, conditions)
 
@@ -117,7 +117,7 @@ const createEventsController = ({ pool = defaultPool, loadRules = createRulesLoa
     // one small record per event for the map, filtered the same way as the list
     const getEventPins = async (req, res) => {
         try {
-            const values = [requireSetting(SETTING.attendingStatus)]
+            const values = [RSVP_STATUS.ATTENDING]
             const conditions = []
             addEventFilters(req.query, values, conditions)
 
@@ -250,7 +250,7 @@ const createEventsController = ({ pool = defaultPool, loadRules = createRulesLoa
             if (body.capacity !== undefined) {
                 const attending = await pool.query(
                     'SELECT COUNT(*)::int AS attending FROM rsvps WHERE event_id = $1 AND rsvp_status = $2',
-                    [eventId, requireSetting(SETTING.attendingStatus)]
+                    [eventId, RSVP_STATUS.ATTENDING]
                 )
                 const count = attending.rows[0].attending
                 if (Number(body.capacity) < count) {

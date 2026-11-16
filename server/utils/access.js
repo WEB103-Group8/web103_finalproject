@@ -1,5 +1,5 @@
 import { sendServerError } from './http.js'
-import { SETTING, requireSetting } from './settings.js'
+import { USER_TYPE } from '../domain/constants.js'
 
 // a person counts as logged in only after they finished onboarding (new GitHub users have not yet)
 const isLoggedIn = (req) => Boolean(req.user) && !req.user.isNewUser
@@ -16,16 +16,7 @@ const requireUser = (req, res, next) => {
 // let the request through only if the logged-in person is a host
 const requireHost = (req, res, next) => {
     requireUser(req, res, () => {
-        let isHost
-
-        try {
-            // what a host is called in the database comes from the settings, not from the code
-            isHost = req.user.user_type === requireSetting(SETTING.hostUserType)
-        } catch (error) {
-            return sendServerError(res, 'check permissions', error)
-        }
-
-        if (!isHost) {
+        if (req.user.user_type !== USER_TYPE.HOST) {
             return res.status(403).json({ error: 'Only hosts can do this.' })
         }
         next()

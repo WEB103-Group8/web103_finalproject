@@ -2,8 +2,11 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { TABLES } from "../../config/reset.js";
+import commentData from "../../data/comments.js";
+import commentLikeData from "../../data/comment_likes.js";
 import eventData from "../../data/events.js";
 import groupData from "../../data/groups.js";
+import groupSaveData from "../../data/group_saves.js";
 import memberData from "../../data/members.js";
 import rsvpData from "../../data/rsvps.js";
 import userData from "../../data/users.js";
@@ -17,10 +20,13 @@ const ERD_COLUMNS = {
   members: ["membership_id", "user_id", "group_id", "joined_at"],
   events: ["event_id", "group_id", "venue_id", "event_title", "description", "start_time", "end_time", "capacity", "event_image_url"],
   rsvps: ["rsvp_id", "user_id", "event_id", "rsvp_status"],
+  event_comments: ["comment_id", "event_id", "user_id", "comment_text"],
+  comment_likes: ["like_id", "comment_id", "user_id"],
+  group_saves: ["save_id", "group_id", "user_id"],
 };
 
 // Put the data files in one object so the tests can loop over them.
-const data = { users: userData, venues: venueData, groups: groupData, members: memberData, events: eventData, rsvps: rsvpData };
+const data = { users: userData, venues: venueData, groups: groupData, members: memberData, events: eventData, rsvps: rsvpData, event_comments: commentData, comment_likes: commentLikeData, group_saves: groupSaveData };
 
 // Put a list of records into a Map keyed by their id column.
 const byId = (rows, idColumn) => new Map(rows.map((row) => [row[idColumn], row]));
@@ -34,7 +40,7 @@ const events = byId(eventData, "event_id");
 describe("reset table list", () => {
   it("fills the tables in an order where each one only points at earlier tables", () => {
     // Check the order matches the order the foreign keys need.
-    assert.deepEqual(TABLES.map((table) => table.name), ["users", "venues", "groups", "members", "events", "rsvps"]);
+    assert.deepEqual(TABLES.map((table) => table.name), ["users", "venues", "groups", "members", "events", "rsvps", "event_comments", "comment_likes", "group_saves"]);
   });
 
   it("uses the data files as its records", () => {
@@ -44,9 +50,12 @@ describe("reset table list", () => {
 });
 
 describe("data files", () => {
-  it("are not empty", () => {
-    // Every table needs at least one record.
-    for (const [table, rows] of Object.entries(data)) assert.ok(rows.length > 0, `${table} is empty`);
+  it("have data where expected", () => {
+    // Group saves start empty; every other seed file has sample records.
+    for (const [table, rows] of Object.entries(data)) {
+      if (table === "group_saves") assert.equal(rows.length, 0);
+      else assert.ok(rows.length > 0, `${table} is empty`);
+    }
   });
 
   it("give every record exactly the columns from the ERD", () => {

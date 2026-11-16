@@ -32,7 +32,7 @@ Feature GIFs have not been recorded yet.
 
 ### ✅ Database and API
 
-The PostgreSQL database is configured through the server and contains six tables: `users`, `venues`, `groups`, `members`, `events`, and `rsvps`, as shown in the [entity relationship diagram](planning/ERD.png). Users host groups, groups hold events at venues, and users join groups (`members`) and RSVP to events (`rsvps`).
+The PostgreSQL database is configured through the server and contains nine tables: `users`, `venues`, `groups`, `members`, `events`, `rsvps`, `event_comments`, `comment_likes`, and `group_saves`, as shown in the [entity relationship diagram](planning/ERD.png). Users host groups, groups hold events at venues, users join groups (`members`) and RSVP to events (`rsvps`), and logged-in users can comment on and like events or save groups.
 
 The database is seeded with data covering all 50 states plus Washington, DC: 749 users, 214 venues, 214 groups, 1,627 memberships, 321 events, and 1,284 RSVPs. The records live in `server/data`, one file per table. To create the tables and load the data, run `npm run db:setup` from the `server` folder.
 
@@ -92,7 +92,7 @@ Every person has a profile page showing their name, location, the events they at
 <img width="1024" height="576" alt="profile" src="https://github.com/user-attachments/assets/08d0ea38-3e2f-46ad-86c0-67fc39a2a833" />
 
 
-Comments, likes, and saved events/collections are not implemented.
+Event comments and likes, and saving groups to My Collection, are implemented. Saving events is not currently available.
 
 ## Installation Instructions
 
@@ -107,16 +107,19 @@ You need Node.js and a PostgreSQL database (the project uses a Render PostgreSQL
    npm install
    ```
 
-2. **Create `server/.env`** (it is ignored by git). It needs these settings:
+2. **Configure `server/.env`** with your local values. The server loads this exact file from `server/config/dotenv.js`; a `.env` file at the project root is not used. This file is ignored by git, so never commit its credentials.
+
+   It needs these settings:
 
    | Setting | What it is |
    |---|---|
+   | `PORT`, `NODE_ENV` | optional server port and runtime mode |
    | `PGUSER`, `PGPASSWORD`, `PGHOST`, `PGPORT`, `PGDATABASE` | your PostgreSQL connection |
    | `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`, `CALLBACK_URL` | your GitHub OAuth app (the callback is `http://localhost:5173/auth/github/callback` locally) |
    | `SESSION_SECRET`, `CLIENT_URL` | the session secret, and the address of the React app (`http://localhost:5173` locally) |
-   | `HOST_USER_TYPE` | the user type that means "host" (the sample data uses `host`) |
-   | `ATTENDING_RSVP_STATUS` | the RSVP answer that means "going" (the sample data uses `attending`) |
    | `GEOCODER_URL`, `GEOCODER_USER_AGENT`, `GEOCODER_COUNTRY_CODE`, `GEOCODER_TIMEOUT_MS`, `GEOCODER_MIN_GAP_MS` | the address lookup used when a host adds a venue (for example OpenStreetMap's Nominatim at `https://nominatim.openstreetmap.org/search`, country code `us`, and a gap of at least 1000 milliseconds between lookups) |
+
+   Host/attendee roles and RSVP status values are fixed domain values shared by the application and database schema, so they are not configured through environment variables.
 
 3. **Create the tables and load the sample data.** This drops and recreates every table, so it also resets the data:
 

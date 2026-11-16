@@ -19,7 +19,7 @@ describe("controllers", () => {
     assert.deepEqual(names(citiesController), ["getCities"]);
     assert.deepEqual(names(eventsController), ["createEvent", "deleteEvent", "getEventById", "getEventOrganizerId", "getEventPins", "getEvents", "updateEvent"]);
     assert.deepEqual(names(feedController), ["getFeed"]);
-    assert.deepEqual(names(groupsController), ["createGroup", "deleteGroup", "getGroupById", "getGroupMembers", "getGroupOrganizerId", "getGroups", "joinGroup", "leaveGroup", "updateGroup"]);
+    assert.deepEqual(names(groupsController), ["createGroup", "deleteGroup", "getGroupById", "getGroupMembers", "getGroupOrganizerId", "getGroups", "joinGroup", "leaveGroup", "saveGroup", "unsaveGroup", "updateGroup"]);
     assert.deepEqual(names(rsvpsController), ["createRsvp", "deleteRsvp", "getEventRsvps", "getRsvpStatuses", "updateRsvp"]);
     assert.deepEqual(names(usersController), ["getMe", "getUserById", "getUserEvents", "getUserGroups", "getUsers", "updateMe"]);
     assert.deepEqual(names(venuesController), ["createVenue", "getVenueById", "getVenues", "lookupVenue"]);
