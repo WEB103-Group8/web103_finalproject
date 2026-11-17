@@ -1,0 +1,3 @@
+/auth/*  https://server-to3n.onrender.com/auth/:splat  200
+/api/*   https://server-to3n.onrender.com/api/:splat   200
+/*       /index.html                                    200

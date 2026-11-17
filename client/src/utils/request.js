@@ -1,7 +1,4 @@
-// adding api url for deployment
-const API_URL = import.meta.env.PROD
-  ? 'https://server-to3n.onrender.com'
-  : ''
+const API_URL = ''
 
 
 // an error from the API, carrying the status code and the field messages the server sent
