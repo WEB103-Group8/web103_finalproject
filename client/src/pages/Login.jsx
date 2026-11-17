@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
 import '../css/Auth.css'
 import orbitLogo from '../assets/orbit-logo.png'
+import { request } from '../utils/request'
 
 export default function Login() {
   const { user, loading, setUser } = useAuth()
@@ -27,22 +28,35 @@ export default function Login() {
     e.preventDefault()
     setError(null)
     setSubmitting(true)
+    // try {
+    //   const res = await fetch('/auth/login', {
+    //     method: 'POST',
+    //     headers: { 'Content-Type': 'application/json' },
+    //     credentials: 'include',
+    //     body: JSON.stringify(form),
+    //   })
+    //   const data = await res.json()
+    //   if (!res.ok) {
+    //     setError(data.error || 'Login failed')
+    //     return
+    //   }
+    //   setUser(data)
+    //   window.location.href = '/'
+    // } catch {
+    //   setError('Network error — please try again')
+    // } finally {
+    //   setSubmitting(false)
+    // }
     try {
-      const res = await fetch('/auth/login', {
+      const data = await request('/auth/login', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(form),
+        body: form,
       })
-      const data = await res.json()
-      if (!res.ok) {
-        setError(data.error || 'Login failed')
-        return
-      }
+
       setUser(data)
       window.location.href = '/'
-    } catch {
-      setError('Network error — please try again')
+    } catch (error) {
+      setError(error.message || 'Login failed')
     } finally {
       setSubmitting(false)
     }

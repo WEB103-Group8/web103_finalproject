@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useTheme } from '../context/ThemeContext'
 import '../css/Auth.css'
 import orbitLogo from '../assets/orbit-logo.png'
+import { request } from '../utils/request'
 
 export default function Register() {
   const { theme, toggleTheme } = useTheme()
@@ -24,21 +25,33 @@ export default function Register() {
     e.preventDefault()
     setError(null)
     setSubmitting(true)
+    // try {
+    //   const res = await fetch('/auth/register', {
+    //     method: 'POST',
+    //     headers: { 'Content-Type': 'application/json' },
+    //     credentials: 'include',
+    //     body: JSON.stringify(form),
+    //   })
+    //   const data = await res.json()
+    //   if (!res.ok) {
+    //     setError(data.error || 'Registration failed')
+    //     return
+    //   }
+    //   window.location.href = '/'
+    // } catch {
+    //   setError('Network error — please try again')
+    // } finally {
+    //   setSubmitting(false)
+    // }
     try {
-      const res = await fetch('/auth/register', {
+      await request('/auth/register', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(form),
+        body: form,
       })
-      const data = await res.json()
-      if (!res.ok) {
-        setError(data.error || 'Registration failed')
-        return
-      }
+
       window.location.href = '/'
-    } catch {
-      setError('Network error — please try again')
+    } catch (error) {
+      setError(error.message || 'Registration failed')
     } finally {
       setSubmitting(false)
     }
