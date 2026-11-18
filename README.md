@@ -4,7 +4,7 @@ CodePath WEB103 Final Project
 
 Designed and developed by: Annie Gomez, My Pham, Manav Kothari
 
-Deployment: Not fully available yet, but here is the link: https://client-f5ji.onrender.com 
+Deployment: https://client-f5ji.onrender.com 
 
 ## About
 
@@ -26,9 +26,6 @@ Backend: Express, Render PostgreSQL database, GitHub login with Passport
 
 Testing: Vitest and Testing Library (client), Node's built-in test runner (server)
 
-## Features
-
-Feature GIFs have not been recorded yet.
 
 ### ✅ Database and API
 
@@ -56,17 +53,23 @@ The following `psql` screenshots show the tables and sample data:
 
 ![Sample RSVPs](docs/screenshots/rsvps.JPG)
 
+### Features and Feature GIFs
+
 ### ✅ Creating and Hosting
 
 Hosts can create, edit, view, and delete their own events and groups. An event has a title, a description, a start date and time, an end date and time (events can last several days), a capacity, an optional cover image, and a venue. Hosts choose a venue by typing in a dropdown of saved venues, pick **Online** and enter a meeting link in the same box, or add a new venue by typing only a venue name and an address: Orbit looks the address up, shows it on a small map, and fills in the city, state, ZIP code, and map position. Groups and categories can also be added right from the create event form. Hosts get a **+** button in the top bar with a dropdown to create an event or a group (visitors see the same button, which takes them to log in), and the Events and Groups pages each have a Create button above the filters. Attendees cannot create or edit anything, and one host cannot change another host's events or groups.
 
 Every create, join, and attend shows a short confirmation message, and anything that cancels or deletes (stop attending, leave a group, delete an event or group, or cancel a form with unsaved changes) asks "are you sure?" first.
 
-### ✅ Event Gallery
+<img width="1440" height="812" alt="Creating and Hosting" src="https://github.com/user-attachments/assets/6c4a7811-b37e-441f-addd-a27d0fa742a0" />
+
+
+### ✅ Event and Group Gallery
 
 The home page shows a map of upcoming events with one small pin per event. Hovering over a pin shows the event's title, time, and category, and clicking it opens that event. The Events page shows every event as a grid of cards with a start and end time, the place, and how many people are going, split into pages with a choice of 10 to 50 items per page. Groups have their own grid and pages, and each event and group has a details page that anyone can open without logging in. Times are shown with the venue's time zone (for example 6:30 PM CST), and the event page has a live countdown to the exact start time, whichever time zone you are in.
 
-<img width="2048" height="1152" alt="events" src="https://github.com/user-attachments/assets/a34886ee-a8fe-471f-ab55-cb800991b153" />
+
+<img width="1440" height="812" alt="Event and Group Gallery" src="https://github.com/user-attachments/assets/b3e11934-9858-4f9c-b43a-324294abccd8" />
 
 
 ### ✅ Search and Filter Function
@@ -74,14 +77,14 @@ The home page shows a map of upcoming events with one small pin per event. Hover
 The same filter section appears on the home page, the Events page, and the Groups page: search by event or group name, city, state, ZIP code, and category, plus a start and end date and an "upcoming only" switch. Suggestions drop down as you type, but any text can still be searched. Filters, the page, and the page size are kept in the address, so a search can be shared and the back button works.
 
 
-<img width="2048" height="1152" alt="search-and-filter" src="https://github.com/user-attachments/assets/0cb235c6-7af3-4fb6-8b51-41c7372426fc" />
+<img width="1440" height="812" alt="Search and Filter" src="https://github.com/user-attachments/assets/43567a4c-ffe3-4fe5-a93a-14fc233f8d56" />
 
 
-### ✅ RSVP Events
+### ✅ RSVP Events, Leave Comments and Like Comments
 
 Logged-in users can attend an event or say they are not attending, and join or leave groups. Hosts are not offered to attend the events they host. The attendee count updates right away and is put back if the server refuses (for example, when the event just filled up). Events have a capacity, so the last place can never be taken by two people at once. Visitors see a Join button that takes them to log in. The host of an event also sees the list of who answered.
 
-<img width="2048" height="1152" alt="rsvp" src="https://github.com/user-attachments/assets/46db6af8-c689-4318-a5e4-80e539e15117" />
+<img width="1440" height="812" alt="RSVP and Comments" src="https://github.com/user-attachments/assets/dec8da8e-910f-45a0-8649-2194c8f08eb6" />
 
 
 ### ✅ Profiles
@@ -89,10 +92,16 @@ Logged-in users can attend an event or say they are not attending, and join or l
 Every person has a profile page showing their name, location, the events they attend or host, and the groups they joined or organize. Your own profile page shows your email and a form to edit your name, location, and photo. People who sign in with GitHub are asked to complete their profile details. Your **My events** (Hosted or Attending) and **My groups** (Organized or Joined) are on the home page, below the map, and on the **My Collection** page in the top bar, with the lists you host and organize first.
 
 
-<img width="1024" height="576" alt="profile" src="https://github.com/user-attachments/assets/08d0ea38-3e2f-46ad-86c0-67fc39a2a833" />
+<img width="1440" height="812" alt="Profile" src="https://github.com/user-attachments/assets/6b225536-99d0-4bb6-becf-67196b44835b" />
 
 
-Event comments and likes, and saving groups to My Collection, are implemented. Saving events is not currently available.
+### ✅ Saving Groups
+
+Users can also save groups to their collection to view later. Note that joining a group will remove it from your saved groups.
+
+
+<img width="1440" height="812" alt="Saving Groups" src="https://github.com/user-attachments/assets/7e860b68-a7c3-45e2-b762-b12d38bfe996" />
+
 
 ## Installation Instructions
 
