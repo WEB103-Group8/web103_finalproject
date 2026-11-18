@@ -78,9 +78,10 @@ Complete the checklist below detailing each baseline, custom, and stretch featur
   - *Selecting a photo from a list of provided photos does **NOT** count for this rubric item.*
 - [ ] 🍞 [Toast messages](https://www.patternfly.org/v3/pattern-library/communication/toast-notifications/index.html) deliver simple feedback in response to user events
 
-## Final Demo Video (Initial)
+## Final Demo Gif
 
-🔗 https://youtu.be/lKnbYA9Dl3k
+🔗 <img width="576" height="325" alt="Kapture 2026-11-17 at 22 01 28" src="https://github.com/user-attachments/assets/8ab1e1ff-c758-4033-b8e4-7e1e0299797f" />
+
 
 ## Reflection
 
